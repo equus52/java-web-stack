@@ -7,6 +7,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import equus.webstack.model.Customer;
 import equus.webstack.service.CustomerService;
 
@@ -19,9 +20,10 @@ public class CustomerResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Customer getHello() {
-    Customer customer = new Customer();
+    val customer = new Customer();
     customer.setId(0);
     customer.setName("Hiro");
-    return customer;
+    customerService.save(customer);
+    return customerService.findByVersion(customer.getId(), customer.getVersion());
   }
 }

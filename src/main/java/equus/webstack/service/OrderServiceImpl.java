@@ -4,10 +4,11 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import lombok.RequiredArgsConstructor;
-import equus.webstack.model.Customer;
+import equus.webstack.model.Order;
 
 @RequiredArgsConstructor(onConstructor = @__({ @Inject }))
-public class CustomerServiceImpl implements CustomerService {
+public class OrderServiceImpl implements OrderService {
+
   private final EntityManager em;
 
   @Override
@@ -16,8 +17,8 @@ public class CustomerServiceImpl implements CustomerService {
   }
 
   @Override
-  public Class<Customer> getEntityClass() {
-    return Customer.class;
+  public Class<Order> getEntityClass() {
+    return Order.class;
   }
 
 }

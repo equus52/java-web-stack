@@ -1,6 +1,7 @@
 package equus.webstack.application;
 
 import lombok.SneakyThrows;
+import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
 import org.eclipse.jetty.server.Server;
@@ -16,9 +17,9 @@ public class JettyStarter {
 
   @SneakyThrows
   public void start() {
-    Server server = createServer();
+    val server = createServer();
 
-    Thread shutdownHook = new Thread(() -> {
+    val shutdownHook = new Thread(() -> {
       try {
         server.stop();
       } catch (Throwable t) {
@@ -32,8 +33,8 @@ public class JettyStarter {
   }
 
   private Server createServer() {
-    Server server = new Server(port);
-    WebAppContext context = new WebAppContext();
+    val server = new Server(port);
+    val context = new WebAppContext();
     context.setServer(server);
     context.setContextPath("/");
     context.setDescriptor("src/main/webapp/WEB-INF/web.xml");
