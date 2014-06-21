@@ -12,8 +12,7 @@ A web stack sample with Java REST API
 - Hibernate, Querydsl
 - Jackson
 - Jetty
-  
-  
+- and..
   - slf4j, logback
   - lombok
   - guava
