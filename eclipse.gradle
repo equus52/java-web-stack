@@ -1,0 +1,35 @@
+// called from each project applying eclipse plugin
+apply plugin: 'eclipse'
+
+// project name  settings
+eclipse.project { name project.name }
+
+// classpath variable settings
+eclipse.pathVariables 'GRADLE_USER_HOME': gradle.gradleUserHomeDir
+
+// local classpath to use relative path
+eclipse.classpath.file {
+  whenMerged { classpath ->
+    classpath.entries.each {
+      def baseDir = project.projectDir.getAbsolutePath().replace('\\', '/')
+      if (it.path.startsWith(baseDir)) {
+        it.path = it.path.replace(baseDir, ".")
+      }
+    }
+  }
+}
+
+// make source dirs task
+task makeSourceDirs {
+  def sources = [
+    sourceSets.main,
+    sourceSets.test
+  ]
+  sources*.allSource*.srcDirs.flatten().each { File srcDir ->
+    if (!srcDir.isDirectory()) {
+      println "making $srcDir"
+      srcDir.mkdirs()
+    }
+  }
+}
+eclipseClasspath.dependsOn makeSourceDirs

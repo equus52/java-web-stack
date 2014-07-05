@@ -1,0 +1,37 @@
+// libraries version settings
+// called one time from root project
+ext {
+  guice_version = '3.0'
+  querydsl_jpa_version = '3.4.0'
+  
+  libraries = [
+    jsr305: 'com.google.code.findbugs:jsr305:2.0.3',
+    guava: 'com.google.guava:guava:17.0',
+    logback_classic: 'ch.qos.logback:logback-classic:1.1.2',
+    groovy_all: 'org.codehaus.groovy:groovy-all:2.2.2',
+    lombok: 'org.projectlombok:lombok:1.14.2',
+	
+    guice: "com.google.inject:guice:${guice_version}",
+    guice_servlet: "com.google.inject.extensions:guice-servlet:${guice_version}",
+    guice_persist: "com.google.inject.extensions:guice-persist:${guice_version}",
+	
+    guice_bridge: 'org.glassfish.hk2:guice-bridge:2.2.0',
+    hibernate_entitymanager: 'org.hibernate:hibernate-entitymanager:4.3.5.Final',
+    querydsl_jpa: [group: 'com.mysema.querydsl', name: 'querydsl-jpa', version: querydsl_jpa_version],
+    querydsl_jpa_apt_one_jar: [group: 'com.mysema.querydsl', name: 'querydsl-jpa', version: querydsl_jpa_version, classifier: 'apt-one-jar'],
+    postgresql: 'org.postgresql:postgresql:9.3-1101-jdbc41',
+  ]
+}
+
+allprojects {
+
+  // repositories settings
+  repositories { mavenCentral() }
+  
+  // additional scope
+  configurations { 
+    provided
+    buildCompile
+  }
+  
+}
