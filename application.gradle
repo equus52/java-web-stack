@@ -1,0 +1,18 @@
+// called from each project applying application plugin
+apply plugin: 'application'
+
+distZip {
+  into(project.name) {
+    allprojects{
+      from "../${project.name}/src/main/"
+      include 'config/*'
+    }
+  }
+}
+
+// force overwrite because not work in what follows
+// startScripts.classpath.add(files('$APP_HOME/config'))
+startScripts << {
+  unixScript.text = unixScript.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/config/:$APP_HOME/lib')
+  windowsScript.text = windowsScript.text.replaceFirst(/set CLASSPATH=%APP_HOME%.*/, 'set CLASSPATH=%APP_HOME%/config/;%APP_HOME%/lib/*')
+}

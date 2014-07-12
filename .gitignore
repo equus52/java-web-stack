@@ -4,3 +4,7 @@
 /bin
 /build
 /log
+node_modules
+bower_components
+dist
+*.sublime*
