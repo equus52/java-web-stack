@@ -9,10 +9,16 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 @Slf4j
 public class JettyStarter {
-  private static final int port = 9010;
+  private final int port = 9010;
+  private final String contextPath = "/java-web-stack/";
+  private String resourceBase = "WebContent";
 
   public static void main(String[] args) {
-    new JettyStarter().start();
+    JettyStarter jetty = new JettyStarter();
+    if (args.length > 0) {
+      jetty.resourceBase = args[0];
+    }
+    jetty.start();
   }
 
   @SneakyThrows
@@ -29,6 +35,7 @@ public class JettyStarter {
     Runtime.getRuntime().addShutdownHook(shutdownHook);
 
     server.start();
+    System.out.println("URL http://localhost:" + port + contextPath);
     server.join();
   }
 
@@ -36,9 +43,9 @@ public class JettyStarter {
     val server = new Server(port);
     val context = new WebAppContext();
     context.setServer(server);
-    context.setContextPath("/");
-    context.setDescriptor("src/main/webapp/WEB-INF/web.xml");
-    context.setResourceBase("src/main/webapp/");
+    context.setContextPath(contextPath);
+    context.setDescriptor("WebContent/WEB-INF/web.xml");
+    context.setResourceBase(resourceBase);
     context.setParentLoaderPriority(true);
     server.setHandler(context);
     return server;

@@ -29,8 +29,8 @@ eclipse.classpath.file {
         it.path = it.path.replace(baseDir, ".")
       }
       def parentDir = project.projectDir.getParentFile().getAbsolutePath().replace('\\', '/')
-      if (lib.path.startsWith(parentDir)) {
-        lib.path = lib.path.replace(parentDir, '..')
+      if (it.path.startsWith(parentDir)) {
+        it.path = it.path.replace(parentDir, '..')
       }
     }
   }

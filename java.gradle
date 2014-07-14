@@ -9,6 +9,7 @@ javadoc { options.encoding = defaultEncoding }
 // Java version settings
 sourceCompatibility = jdkVersion
 targetCompatibility = jdkVersion
+tasks.withType(AbstractCompile) { options.bootClasspath = "${System.getProperty("java.home")}/lib/rt.jar" }
 
 // jar settings
 jar {

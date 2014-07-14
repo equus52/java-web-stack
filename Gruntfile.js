@@ -27,6 +27,8 @@ module.exports = function (grunt) {
     }
   };
 
+  var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
+
   // Define the configuration for all the tasks
   grunt.initConfig({
 
@@ -90,11 +92,24 @@ module.exports = function (grunt) {
           open: true,
           middleware: function (connect) {
             return [
+              proxySnippet,
               connect.static(appConfig.dir.appRoot)
             ];
           }
         }
       },
+      proxies: [
+        {
+          context: '/api',
+          host: 'localhost',
+          port: '9010',
+          rewrite: {
+            '^/api': '/java-web-stack/api'
+          },
+          https: false,
+          changeOrigin: false
+        }
+      ],
       dist: {
         options: {
           open: true,
@@ -182,7 +197,7 @@ module.exports = function (grunt) {
       dist: {
         src: [
           '<%= conf.dist %>/scripts/*.js',
-          '<%= conf.dist %>/styles/css/*.css',
+          '<%= conf.dist %>/styles/*.css',
           '<%= conf.dist %>/images/**/*.{png,jpg,jpeg,gif,webp,svg}',
           '<%= conf.dist %>/styles/fonts/*'
         ]
@@ -281,6 +296,7 @@ module.exports = function (grunt) {
 
     grunt.task.run([
       'compile',
+      'configureProxies',
       'connect:livereload',
       'watch'
     ]);
