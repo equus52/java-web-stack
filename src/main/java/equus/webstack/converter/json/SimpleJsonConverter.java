@@ -23,6 +23,7 @@ public interface SimpleJsonConverter<T> extends JsonConverter<T> {
     jgen.writeString(encode(value));
   }
 
+  @SuppressWarnings("null")
   @Override
   default T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
     String text = jp.getText();
