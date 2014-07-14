@@ -10,6 +10,8 @@ Java 8+
 ## Dependencies
 
 - AngularJS
+- grunt
+- bower
 - Jersey
 - Guice
 - Gradle
