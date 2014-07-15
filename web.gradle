@@ -1,0 +1,24 @@
+// called from each project applying war plugin, eclipse-wtp plugin
+apply plugin: "war"
+apply plugin: 'eclipse-wtp'
+
+// facet settings
+eclipse {
+  wtp {
+    facet {
+      facet name: 'java', version: '1.8'
+      facet name: 'jst.web', version: '3.0'
+    }
+  }
+}
+
+// wtp context-path setting
+eclipse.wtp.component { contextPath = contextRoot }
+
+// contents root setting
+project.webAppDirName = webContentsRoot
+
+// war manifest setting
+war {
+  manifest.attributes = jar.manifest.attributes
+}

@@ -197,7 +197,7 @@ module.exports = function (grunt) {
       dist: {
         src: [
           '<%= conf.dist %>/scripts/*.js',
-          '<%= conf.dist %>/styles/*.css',
+          '<%= conf.dist %>/styles/css/*.css',
           '<%= conf.dist %>/images/**/*.{png,jpg,jpeg,gif,webp,svg}',
           '<%= conf.dist %>/styles/fonts/*'
         ]

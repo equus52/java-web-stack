@@ -1,0 +1,18 @@
+// called from each project applying eclipse-wtp plugin
+// eclipse-wtp plugin is needed by all of wtp deploy target projects
+apply plugin: 'eclipse-wtp'
+
+
+// library [exported = false] to be exclude deploy
+eclipse.classpath.file.withXml {
+  it.asNode().classpathentry.findAll { entry -> !entry.@exported }.each { noExportEntry ->
+    def attributes = noExportEntry.children()[0]
+    if (attributes != null) {
+      def dependency = attributes.attribute.find {it.@name.startsWith('org.eclipse.jst.component')}
+
+      if (dependency != null) {
+        attributes.remove(dependency)
+      }
+    }
+  }
+}

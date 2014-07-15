@@ -2,10 +2,8 @@ apply from: 'build-base.gradle'
 
 apply from: 'java.gradle'
 apply from: 'eclipse.gradle'
-
-apply plugin: 'war'
-
-sourceSets.main.resources.srcDirs 'src/main/webapp'
+apply from: 'eclipse-wtp.gradle'
+apply from: 'web.gradle'
 
 dependencies {
   compile libraries.jsr305
