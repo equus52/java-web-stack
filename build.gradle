@@ -21,16 +21,10 @@ dependencies {
   buildCompile libraries.querydsl_jpa_apt_one_jar
   compile libraries.postgresql
 
-  def jersey = '2.9.1'
-  compile "org.glassfish.jersey.containers:jersey-container-servlet:$jersey"
-  compile "org.glassfish.jersey.core:jersey-client:$jersey"
-  compile "org.glassfish.jersey.media:jersey-media-json-jackson:$jersey"
+  compile libraries.jersey_container_servlet
+  compile libraries.jersey_client
+  compile libraries.jersey_media_json_jackson
 
-  def jetty = '9.2.1.v20140609'
-  compile "org.eclipse.jetty:jetty-server:$jetty"
-  compile "org.eclipse.jetty:jetty-webapp:$jetty"
-
-  testCompile 'junit:junit:4.11'
-  testCompile 'org.hamcrest:hamcrest-all:1.3'
-  testCompile 'mockit:mockit:0.999.4'
+  compile libraries.jetty_server
+  compile libraries.jetty_webapp
 }

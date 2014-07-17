@@ -34,6 +34,11 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 }
 artifacts { archives sourcesJar }
 
+// test common dependencies settings
+dependencies {
+  libraries.test.each { key, value -> testCompile value }
+}
+
 // local dependencies settings
 dependencies {
   compile fileTree(dir: 'lib/compile', include: '**/*.jar', exclude: '**/*-sources.jar')
