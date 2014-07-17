@@ -7,6 +7,7 @@ import lombok.val;
 import com.google.inject.Injector;
 
 import equus.webstack.application.WebStackApplication;
+import equus.webstack.application.WebStackFinalizer;
 
 public class DBInitializeCommand {
 
@@ -25,6 +26,7 @@ public class DBInitializeCommand {
     // setup initial data
 
     block.accept(injector);
+    injector.getInstance(WebStackFinalizer.class).stop();
   }
 
 }

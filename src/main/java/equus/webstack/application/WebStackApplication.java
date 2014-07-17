@@ -41,7 +41,7 @@ public class WebStackApplication extends ResourceConfig {
       }
     });
     val initializer = injector.getInstance(WebStackInitializer.class);
-    initializer.init();
+    initializer.start();
     return injector;
   }
 }

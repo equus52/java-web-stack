@@ -7,10 +7,10 @@ import lombok.RequiredArgsConstructor;
 import com.google.inject.persist.PersistService;
 
 @RequiredArgsConstructor(onConstructor = @__({ @Inject }))
-public class WebStackInitializer {
+public class WebStackFinalizer {
   private final PersistService persistService;
 
-  public void start() {
-    persistService.start();
+  public void stop() {
+    persistService.stop();
   }
 }
