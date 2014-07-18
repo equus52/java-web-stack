@@ -3,19 +3,34 @@ package equus.webstack.command;
 import java.util.function.Consumer;
 
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
+
+import org.slf4j.Logger;
 
 import com.google.inject.Injector;
 
 import equus.webstack.application.WebStackApplication;
 import equus.webstack.application.WebStackFinalizer;
 
-public class DBInitializeCommand {
+@Slf4j
+public class DBInitializeCommand implements Command {
 
-  public static void main(String[] args) {
-    new DBInitializeCommand().execute();
+  @Override
+  public Logger getLogger() {
+    return log;
   }
 
-  public void execute() {
+  @Override
+  public String getName() {
+    return this.getClass().getName();
+  }
+
+  public static void main(String[] args) {
+    new DBInitializeCommand().executeCommand();
+  }
+
+  @Override
+  public void execute(String... args) {
     execute(injector -> {
     });
   }

@@ -16,12 +16,15 @@ import lombok.Data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import equus.webstack.persist.configuration.Comment;
+
 @MappedSuperclass
 @Data
 @SuppressWarnings("serial")
 public abstract class BaseEntity implements Serializable {
 
   @Id
+  @Comment("identifier")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 

@@ -3,20 +3,35 @@ package equus.webstack.command;
 import java.util.Properties;
 
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
+
+import org.slf4j.Logger;
 
 import com.google.inject.Guice;
 import com.google.inject.persist.PersistService;
 import com.google.inject.persist.jpa.JpaPersistModule;
 
-import equus.webstack.service.module.ServiceModule;
+import equus.webstack.persist.module.PersistModule;
 
-public class DBDropCreateCommand {
-  public static void main(String[] args) {
-    new DBDropCreateCommand().execute();
+@Slf4j
+public class DBDropCreateCommand implements Command {
+  @Override
+  public Logger getLogger() {
+    return log;
   }
 
-  public void execute() {
-    JpaPersistModule module = new JpaPersistModule(ServiceModule.JPA_UNIT);
+  @Override
+  public String getName() {
+    return this.getClass().getName();
+  }
+
+  public static void main(String[] args) {
+    new DBDropCreateCommand().executeCommand();
+  }
+
+  @Override
+  public void execute(String... args) {
+    JpaPersistModule module = new JpaPersistModule(PersistModule.JPA_UNIT);
     Properties properties = new Properties();
     properties.setProperty("hibernate.hbm2ddl.auto", "create");
     module.properties(properties);
@@ -25,4 +40,5 @@ public class DBDropCreateCommand {
     persistService.start();
     persistService.stop();
   }
+
 }

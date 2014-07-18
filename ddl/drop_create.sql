@@ -17,6 +17,15 @@
         primary key (id)
     )
 
+    comment on table Customer is
+        'Customer'
+
+    comment on column Customer.id is
+        'identifier'
+
+    comment on column Customer.name is
+        'Customer Name'
+
     create table OrderItem (
         id  bigserial not null,
         createDateTime bytea not null,
@@ -26,6 +35,9 @@
         primary key (id)
     )
 
+    comment on column OrderItem.id is
+        'identifier'
+
     create table order_list (
         id  bigserial not null,
         createDateTime bytea not null,
@@ -34,6 +46,9 @@
         orderDateTime bytea not null,
         primary key (id)
     )
+
+    comment on column order_list.id is
+        'identifier'
 
     alter table OrderItem 
         add constraint FK_6cxptya5vldowhtfdxs70ytw1 
