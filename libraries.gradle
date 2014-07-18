@@ -13,6 +13,7 @@ ext {
     groovy_all: 'org.codehaus.groovy:groovy-all:2.2.2',
     lombok: 'org.projectlombok:lombok:1.14.2',
     reflections: 'org.reflections:reflections:0.9.9-RC2',
+    commons_lang3: 'org.apache.commons:commons-lang3:3.3.2',
 	
     guice: "com.google.inject:guice:${guice_version}",
     guice_servlet: "com.google.inject.extensions:guice-servlet:${guice_version}",

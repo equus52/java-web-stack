@@ -10,10 +10,10 @@
 
     create table Customer (
         id  bigserial not null,
-        createDateTime bytea not null,
-        updateDateTime bytea not null,
         version int8 not null,
         name varchar(255) not null,
+        createDateTime bytea not null,
+        updateDateTime bytea not null,
         primary key (id)
     )
 
@@ -28,10 +28,10 @@
 
     create table OrderItem (
         id  bigserial not null,
-        createDateTime bytea not null,
-        updateDateTime bytea not null,
         version int8 not null,
         order_id int8,
+        createDateTime bytea not null,
+        updateDateTime bytea not null,
         primary key (id)
     )
 
@@ -40,10 +40,10 @@
 
     create table order_list (
         id  bigserial not null,
-        createDateTime bytea not null,
-        updateDateTime bytea not null,
         version int8 not null,
         orderDateTime bytea not null,
+        createDateTime bytea not null,
+        updateDateTime bytea not null,
         primary key (id)
     )
 

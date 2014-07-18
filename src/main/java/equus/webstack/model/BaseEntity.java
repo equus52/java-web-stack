@@ -16,6 +16,7 @@ import lombok.Data;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import equus.webstack.persist.configuration.ColumnOrder;
 import equus.webstack.persist.configuration.Comment;
 
 @MappedSuperclass
@@ -32,10 +33,12 @@ public abstract class BaseEntity implements Serializable {
   private long version;
 
   @Column(nullable = false, updatable = false)
+  @ColumnOrder(100)
   @JsonIgnore
   private ZonedDateTime createDateTime;
 
   @Column(nullable = false)
+  @ColumnOrder(100)
   @JsonIgnore
   private ZonedDateTime updateDateTime;
 

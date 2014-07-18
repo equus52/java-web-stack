@@ -12,6 +12,7 @@ dependencies {
   compile libraries.groovy_all
   compile libraries.lombok
   compile libraries.reflections
+  compile libraries.commons_lang3
   compile libraries.guice
   compile libraries.guice_servlet
   compile libraries.guice_persist
