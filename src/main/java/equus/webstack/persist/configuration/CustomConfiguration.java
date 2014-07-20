@@ -3,16 +3,21 @@ package equus.webstack.persist.configuration;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.function.Function;
 
+import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Version;
 
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.val;
@@ -21,13 +26,52 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.hibernate.MappingException;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Mappings;
+import org.hibernate.cfg.NamingStrategy;
+import org.hibernate.internal.util.ReflectHelper;
+import org.hibernate.jpa.AvailableSettings;
+import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
+import org.hibernate.jpa.boot.internal.PersistenceXmlParser;
 import org.hibernate.mapping.Column;
 import org.hibernate.mapping.MappedSuperclass;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.Table;
+import org.reflections.Reflections;
+
+import equus.webstack.model.BaseEntity;
+import equus.webstack.persist.module.PersistModule;
 
 @SuppressWarnings("serial")
 public class CustomConfiguration extends Configuration {
+
+  @SneakyThrows
+  public static CustomConfiguration generateConfiguration() {
+    Properties properties = null;
+    @SuppressWarnings("rawtypes")
+    List<ParsedPersistenceXmlDescriptor> units = PersistenceXmlParser.locatePersistenceUnits(new HashMap());
+    for (ParsedPersistenceXmlDescriptor persistenceUnit : units) {
+      if (persistenceUnit.getName().equals(PersistModule.JPA_UNIT)) {
+        properties = persistenceUnit.getProperties();
+      }
+    }
+    if (properties == null) {
+      throw new RuntimeException("properties not found.");
+    }
+    CustomConfiguration config = new CustomConfiguration();
+    config.addProperties(properties);
+    config.namingStrategy = (NamingStrategy) ReflectHelper.classForName(
+        properties.getProperty(AvailableSettings.NAMING_STRATEGY)).newInstance();
+    getAnnotatedClassed().forEach(c -> config.addAnnotatedClass(c));
+
+    return config;
+  }
+
+  private static Collection<Class<?>> getAnnotatedClassed() {
+    val reflections = new Reflections(BaseEntity.class.getPackage().getName());
+    return reflections.getTypesAnnotatedWith(Entity.class);
+  }
+
+  @Setter
+  private Comparator<OrderingColumn> columnComparator = OrderingColumn.defaultComparator;
 
   @Override
   protected void secondPassCompile() throws MappingException {
@@ -146,28 +190,9 @@ public class CustomConfiguration extends Configuration {
     return index;
   }
 
-  @Value
-  private static class OrderingColumn implements Comparable<OrderingColumn> {
-    Integer fieldIndex;
-    int columnOrder;
-    Column column;
-    boolean id;
-    boolean version;
-
-    @Override
-    public int compareTo(OrderingColumn o) {
-      val builder = new CompareToBuilder();
-      builder.append(o.id, id);
-      builder.append(o.version, version);
-      builder.append(columnOrder, o.columnOrder);
-      builder.append(fieldIndex, o.fieldIndex);
-      return builder.toComparison();
-    }
-  }
-
   @SneakyThrows
   private void updateColumns(Table table, List<OrderingColumn> orderingColumns) {
-    Collections.sort(orderingColumns);
+    orderingColumns.sort(columnComparator);
 
     Class<? extends Table> tableClass = table.getClass();
     Field f = tableClass.getDeclaredField("columns");
@@ -179,5 +204,23 @@ public class CustomConfiguration extends Configuration {
     for (OrderingColumn orderingColumn : orderingColumns) {
       table.addColumn(orderingColumn.column);
     }
+  }
+
+  @Value
+  private static class OrderingColumn {
+    Integer fieldIndex;
+    int columnOrder;
+    Column column;
+    boolean id;
+    boolean version;
+
+    static final Comparator<OrderingColumn> defaultComparator = (o1, o2) -> {
+      val builder = new CompareToBuilder();
+      builder.append(o2.id, o1.id);
+      builder.append(o2.version, o1.version);
+      builder.append(o1.columnOrder, o2.columnOrder);
+      builder.append(o1.fieldIndex, o2.fieldIndex);
+      return builder.toComparison();
+    };
   }
 }

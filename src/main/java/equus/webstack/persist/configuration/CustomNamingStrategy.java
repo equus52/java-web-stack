@@ -1,4 +1,4 @@
-package equus.webstack.converter.persistance;
+package equus.webstack.persist.configuration;
 
 import static com.google.common.base.CaseFormat.*;
 import lombok.val;

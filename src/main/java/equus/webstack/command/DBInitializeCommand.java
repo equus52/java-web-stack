@@ -20,11 +20,6 @@ public class DBInitializeCommand implements Command {
     return log;
   }
 
-  @Override
-  public String getName() {
-    return this.getClass().getName();
-  }
-
   public static void main(String[] args) {
     new DBInitializeCommand().executeCommand();
   }

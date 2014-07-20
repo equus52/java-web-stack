@@ -13,6 +13,7 @@ dependencies {
   compile libraries.lombok
   compile libraries.reflections
   compile libraries.commons_lang3
+  compile libraries.args4j
   compile libraries.guice
   compile libraries.guice_servlet
   compile libraries.guice_persist

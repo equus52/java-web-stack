@@ -19,9 +19,9 @@
 			<property name="hibernate.show_sql" value="true" />
 			<property name="hibernate.format_sql" value="true" />
 			
-			<property name="hibernate.ejb.naming_strategy" value="equus.webstack.converter.persistance.CustomNamingStrategy" />			
+			<property name="hibernate.ejb.naming_strategy" value="equus.webstack.persist.configuration.CustomNamingStrategy" />			
 			
-			<property name="hibernate.hbm2ddl.auto" value="update" /><!-- validate | update | create | create-drop -->
+			<property name="hibernate.hbm2ddl.auto" value="validate" /><!-- validate | update | create | create-drop -->
 		</properties>
 	</persistence-unit>
 

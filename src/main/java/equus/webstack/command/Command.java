@@ -6,18 +6,20 @@ public interface Command {
 
   void execute(String... args);
 
-  String getName();
-
   Logger getLogger();
+
+  default String getCommandName() {
+    return this.getClass().getSimpleName();
+  }
 
   default void executeCommand(String... args) {
     try {
       execute(args);
     } catch (Throwable t) {
-      getLogger().error(String.format("%s is failed.", getName()), t);
+      getLogger().error(String.format("%s is failed.", getCommandName()), t);
       System.exit(-1);
     }
-    getLogger().info(String.format("%s is finished.", getName()));
+    getLogger().info(String.format("%s is finished.", getCommandName()));
     System.exit(0);
   }
 
