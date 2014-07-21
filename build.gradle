@@ -1,10 +1,10 @@
 apply from: 'build-base.gradle'
 
-apply from: 'java.gradle'
-apply from: 'eclipse.gradle'
-apply from: 'eclipse-wtp.gradle'
-apply from: 'web.gradle'
-apply from: 'application.gradle'
+apply from: 'gradle/java.gradle'
+apply from: 'gradle/eclipse.gradle'
+apply from: 'gradle/eclipse-wtp.gradle'
+apply from: 'gradle/web.gradle'
+apply from: 'gradle/application.gradle'
 
 dependencies {
   compile libraries.jsr305
