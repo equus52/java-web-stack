@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Function;
 
 import javax.persistence.Entity;
@@ -37,19 +39,16 @@ import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.Table;
 import org.reflections.Reflections;
 
-import equus.webstack.model.BaseEntity;
-import equus.webstack.persist.module.PersistModule;
-
 @SuppressWarnings("serial")
 public class CustomConfiguration extends Configuration {
 
   @SneakyThrows
-  public static CustomConfiguration generateConfiguration() {
+  public static CustomConfiguration generateConfiguration(String jpaUnit, Package... entityPackages) {
     Properties properties = null;
     @SuppressWarnings("rawtypes")
     List<ParsedPersistenceXmlDescriptor> units = PersistenceXmlParser.locatePersistenceUnits(new HashMap());
     for (ParsedPersistenceXmlDescriptor persistenceUnit : units) {
-      if (persistenceUnit.getName().equals(PersistModule.JPA_UNIT)) {
+      if (persistenceUnit.getName().equals(jpaUnit)) {
         properties = persistenceUnit.getProperties();
       }
     }
@@ -60,14 +59,18 @@ public class CustomConfiguration extends Configuration {
     config.addProperties(properties);
     config.namingStrategy = (NamingStrategy) ReflectHelper.classForName(
         properties.getProperty(AvailableSettings.NAMING_STRATEGY)).newInstance();
-    getAnnotatedClassed().forEach(c -> config.addAnnotatedClass(c));
+    getAnnotatedClassed(entityPackages).forEach(c -> config.addAnnotatedClass(c));
 
     return config;
   }
 
-  private static Collection<Class<?>> getAnnotatedClassed() {
-    val reflections = new Reflections(BaseEntity.class.getPackage().getName());
-    return reflections.getTypesAnnotatedWith(Entity.class);
+  private static Collection<Class<?>> getAnnotatedClassed(Package... entityPackages) {
+    Set<Class<?>> ret = new HashSet<>();
+    for (Package entityPackage : entityPackages) {
+      val reflections = new Reflections(entityPackage.getName());
+      ret.addAll(reflections.getTypesAnnotatedWith(Entity.class));
+    }
+    return ret;
   }
 
   @Setter
@@ -207,14 +210,14 @@ public class CustomConfiguration extends Configuration {
   }
 
   @Value
-  private static class OrderingColumn {
+  public static class OrderingColumn {
     Integer fieldIndex;
     int columnOrder;
     Column column;
     boolean id;
     boolean version;
 
-    static final Comparator<OrderingColumn> defaultComparator = (o1, o2) -> {
+    public static final Comparator<OrderingColumn> defaultComparator = (o1, o2) -> {
       CompareToBuilder builder = new CompareToBuilder();
       builder.append(o2.id, o1.id);
       builder.append(o2.version, o1.version);

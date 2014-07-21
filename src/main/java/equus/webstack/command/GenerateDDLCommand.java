@@ -6,7 +6,9 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.Target;
 import org.slf4j.Logger;
 
+import equus.webstack.model.BaseEntity;
 import equus.webstack.persist.configuration.CustomConfiguration;
+import equus.webstack.persist.module.PersistModule;
 
 @Slf4j
 public class GenerateDDLCommand implements Command {
@@ -23,7 +25,8 @@ public class GenerateDDLCommand implements Command {
 
   @Override
   public void execute(String... args) {
-    CustomConfiguration config = CustomConfiguration.generateConfiguration();
+    CustomConfiguration config = CustomConfiguration.generateConfiguration(PersistModule.JPA_UNIT,
+        BaseEntity.class.getPackage());
 
     SchemaExport schemaExport = new SchemaExport(config);
     schemaExport.setOutputFile(DROP_CREATE_PATH);
