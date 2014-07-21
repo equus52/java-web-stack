@@ -8,6 +8,10 @@ ext {
   // Java
   jdkVersion = '1.8'
   
+  // application
+  app_mainClassName = 'equus.webstack.command.CommandLauncher'
+  app_baseName = 'java-web-stack-command'
+  
   // web
   contextRoot = 'java-web-stack'
   webContentsRoot = 'WebContent'

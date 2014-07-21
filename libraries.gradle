@@ -11,7 +11,7 @@ ext {
     guava: 'com.google.guava:guava:17.0',
     logback_classic: 'ch.qos.logback:logback-classic:1.1.2',
     groovy_all: 'org.codehaus.groovy:groovy-all:2.2.2',
-    lombok: 'org.projectlombok:lombok:1.14.2',
+    lombok: 'org.projectlombok:lombok:1.14.4',
     reflections: 'org.reflections:reflections:0.9.9-RC2',
     commons_lang3: 'org.apache.commons:commons-lang3:3.3.2',
     args4j: 'args4j:args4j:2.0.29',    

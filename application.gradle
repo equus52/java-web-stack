@@ -1,6 +1,13 @@
 // called from each project applying application plugin
 apply plugin: 'application'
 
+// main class setting
+mainClassName = app_mainClassName
+
+// zip name setting
+distZip { baseName = app_baseName }
+
+// include config directory setting
 distZip {
   into(project.name) {
     allprojects{

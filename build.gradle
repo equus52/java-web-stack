@@ -4,6 +4,7 @@ apply from: 'java.gradle'
 apply from: 'eclipse.gradle'
 apply from: 'eclipse-wtp.gradle'
 apply from: 'web.gradle'
+apply from: 'application.gradle'
 
 dependencies {
   compile libraries.jsr305

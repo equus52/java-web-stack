@@ -215,7 +215,7 @@ public class CustomConfiguration extends Configuration {
     boolean version;
 
     static final Comparator<OrderingColumn> defaultComparator = (o1, o2) -> {
-      val builder = new CompareToBuilder();
+      CompareToBuilder builder = new CompareToBuilder();
       builder.append(o2.id, o1.id);
       builder.append(o2.version, o1.version);
       builder.append(o1.columnOrder, o2.columnOrder);
