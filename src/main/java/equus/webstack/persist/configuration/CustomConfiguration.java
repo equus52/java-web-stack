@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,10 +12,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
-import java.util.function.Function;
 
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Version;
@@ -39,36 +40,53 @@ import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.Table;
 import org.reflections.Reflections;
 
+import com.google.common.base.Function;
+
 @SuppressWarnings("serial")
 public class CustomConfiguration extends Configuration {
 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @SneakyThrows
   public static CustomConfiguration generateConfiguration(String jpaUnit, Package... entityPackages) {
-    Properties properties = null;
-    @SuppressWarnings("rawtypes")
+    ParsedPersistenceXmlDescriptor unit = null;
     List<ParsedPersistenceXmlDescriptor> units = PersistenceXmlParser.locatePersistenceUnits(new HashMap());
     for (ParsedPersistenceXmlDescriptor persistenceUnit : units) {
       if (persistenceUnit.getName().equals(jpaUnit)) {
-        properties = persistenceUnit.getProperties();
+        unit = persistenceUnit;
       }
     }
-    if (properties == null) {
+    if (unit == null) {
       throw new RuntimeException("properties not found.");
     }
     CustomConfiguration config = new CustomConfiguration();
-    config.addProperties(properties);
-    config.namingStrategy = (NamingStrategy) ReflectHelper.classForName(
-        properties.getProperty(AvailableSettings.NAMING_STRATEGY)).newInstance();
-    getAnnotatedClassed(entityPackages).forEach(c -> config.addAnnotatedClass(c));
+    config.addProperties(unit.getProperties());
+    for (String className : unit.getManagedClassNames()) {
+      Class<?> managedClass = ReflectHelper.classForName(className);
+      if (managedClass.getAnnotation(Entity.class) != null) {
+        config.addAnnotatedClass(managedClass);
+      }
+      if (managedClass.getAnnotation(Converter.class) != null) {
+        config.addAttributeConverter((Class<? extends AttributeConverter>) managedClass);
+      }
+    }
+    for (val addAnnotatedClass : getAnnotatedClasses(Entity.class, entityPackages)) {
+      config.addAnnotatedClass(addAnnotatedClass);
+    }
+    for (val addAnnotatedClass : getAnnotatedClasses(Converter.class, entityPackages)) {
+      config.addAttributeConverter((Class<? extends AttributeConverter>) addAnnotatedClass);
+    }
 
+    config.namingStrategy = (NamingStrategy) ReflectHelper.classForName(
+        unit.getProperties().getProperty(AvailableSettings.NAMING_STRATEGY)).newInstance();
     return config;
   }
 
-  private static Collection<Class<?>> getAnnotatedClassed(Package... entityPackages) {
+  private static Collection<Class<?>> getAnnotatedClasses(Class<? extends Annotation> annotation,
+      Package... entityPackages) {
     Set<Class<?>> ret = new HashSet<>();
     for (Package entityPackage : entityPackages) {
       val reflections = new Reflections(entityPackage.getName());
-      ret.addAll(reflections.getTypesAnnotatedWith(Entity.class));
+      ret.addAll(reflections.getTypesAnnotatedWith(annotation));
     }
     return ret;
   }
@@ -101,8 +119,12 @@ public class CustomConfiguration extends Configuration {
 
   private void processColumnComment() {
     for (PersistentClass persistentClass : classes.values()) {
-      Map<String, Comment> commentMapping = createFieldMapping(persistentClass,
-          field -> field.getAnnotation(Comment.class));
+      Map<String, Comment> commentMapping = createFieldMapping(persistentClass, new Function<Field, Comment>() {
+        @Override
+        public Comment apply(Field field) {
+          return field.getAnnotation(Comment.class);
+        }
+      });
 
       @SuppressWarnings("rawtypes")
       Iterator columnIterator = persistentClass.getTable().getColumnIterator();
@@ -148,7 +170,12 @@ public class CustomConfiguration extends Configuration {
   private void processColumnOrder() {
     for (PersistentClass persistentClass : classes.values()) {
       LinkedHashMap<String, ColumnOrder> orderMapping = createFieldMapping(persistentClass,
-          field -> field.getAnnotation(ColumnOrder.class));
+          new Function<Field, ColumnOrder>() {
+            @Override
+            public ColumnOrder apply(Field field) {
+              return field.getAnnotation(ColumnOrder.class);
+            }
+          });
       List<String> idColmun = findAnnotatedFields(persistentClass, Id.class);
       List<String> versionColmun = findAnnotatedFields(persistentClass, Version.class);
 
@@ -168,8 +195,14 @@ public class CustomConfiguration extends Configuration {
     }
   }
 
-  private <T extends Annotation> List<String> findAnnotatedFields(PersistentClass persistentClass, Class<T> annotation) {
-    LinkedHashMap<String, T> mapping = createFieldMapping(persistentClass, field -> field.getAnnotation(annotation));
+  private <T extends Annotation> List<String> findAnnotatedFields(PersistentClass persistentClass,
+      final Class<T> annotation) {
+    LinkedHashMap<String, T> mapping = createFieldMapping(persistentClass, new Function<Field, T>() {
+      @Override
+      public T apply(Field field) {
+        return field.getAnnotation(annotation);
+      }
+    });
     List<String> ret = new ArrayList<>();
     for (val entry : mapping.entrySet()) {
       if (entry.getValue() == null) {
@@ -195,7 +228,7 @@ public class CustomConfiguration extends Configuration {
 
   @SneakyThrows
   private void updateColumns(Table table, List<OrderingColumn> orderingColumns) {
-    orderingColumns.sort(columnComparator);
+    Collections.sort(orderingColumns, columnComparator);
 
     Class<? extends Table> tableClass = table.getClass();
     Field f = tableClass.getDeclaredField("columns");
@@ -217,13 +250,17 @@ public class CustomConfiguration extends Configuration {
     boolean id;
     boolean version;
 
-    public static final Comparator<OrderingColumn> defaultComparator = (o1, o2) -> {
-      CompareToBuilder builder = new CompareToBuilder();
-      builder.append(o2.id, o1.id);
-      builder.append(o2.version, o1.version);
-      builder.append(o1.columnOrder, o2.columnOrder);
-      builder.append(o1.fieldIndex, o2.fieldIndex);
-      return builder.toComparison();
+    public static final Comparator<OrderingColumn> defaultComparator = new Comparator<OrderingColumn>() {
+
+      @Override
+      public int compare(OrderingColumn o1, OrderingColumn o2) {
+        CompareToBuilder builder = new CompareToBuilder();
+        builder.append(o2.id, o1.id);
+        builder.append(o2.version, o1.version);
+        builder.append(o1.columnOrder, o2.columnOrder);
+        builder.append(o1.fieldIndex, o2.fieldIndex);
+        return builder.toComparison();
+      }
     };
   }
 }

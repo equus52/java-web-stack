@@ -12,8 +12,8 @@
         id  bigserial not null,
         version int8 not null,
         name varchar(255) not null,
-        create_date_time bytea not null,
-        update_date_time bytea not null,
+        create_date_time timestamp not null,
+        update_date_time timestamp not null,
         primary key (id)
     )
 
@@ -30,8 +30,8 @@
         id  bigserial not null,
         version int8 not null,
         order_id int8,
-        create_date_time bytea not null,
-        update_date_time bytea not null,
+        create_date_time timestamp not null,
+        update_date_time timestamp not null,
         primary key (id)
     )
 
@@ -41,9 +41,9 @@
     create table order_list (
         id  bigserial not null,
         version int8 not null,
-        order_date_time bytea not null,
-        create_date_time bytea not null,
-        update_date_time bytea not null,
+        order_date_time timestamp not null,
+        create_date_time timestamp not null,
+        update_date_time timestamp not null,
         primary key (id)
     )
 

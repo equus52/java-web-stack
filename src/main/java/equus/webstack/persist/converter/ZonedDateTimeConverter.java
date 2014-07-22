@@ -1,4 +1,4 @@
-package equus.webstack.converter.persistance;
+package equus.webstack.persist.converter;
 
 import java.sql.Timestamp;
 import java.time.ZoneId;
