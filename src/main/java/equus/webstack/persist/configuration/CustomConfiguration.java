@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.AttributeConverter;
@@ -40,7 +41,7 @@ import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.Table;
 import org.reflections.Reflections;
 
-import com.google.common.base.Function;
+import com.google.common.collect.LinkedHashMultimap;
 
 @SuppressWarnings("serial")
 public class CustomConfiguration extends Configuration {
@@ -119,46 +120,17 @@ public class CustomConfiguration extends Configuration {
 
   private void processColumnComment() {
     for (PersistentClass persistentClass : classes.values()) {
-      Map<String, Comment> commentMapping = createFieldMapping(persistentClass, new Function<Field, Comment>() {
-        @Override
-        public Comment apply(Field field) {
-          return field.getAnnotation(Comment.class);
-        }
-      });
+      val fieldMapping = createFieldMapping(persistentClass);
 
       @SuppressWarnings("rawtypes")
       Iterator columnIterator = persistentClass.getTable().getColumnIterator();
       while (columnIterator.hasNext()) {
         Column column = (Column) columnIterator.next();
-        Comment comment = commentMapping.get(column.getName());
-        if (comment != null) {
-          column.setComment(comment.value());
-        }
+        Optional<Field> field = Optional.ofNullable(getField(fieldMapping, column.getName()));
+        Optional<Comment> comment = field.map(f -> f.getAnnotation(Comment.class));
+        comment.ifPresent(c -> column.setComment(c.value()));
       }
     }
-  }
-
-  private <T> LinkedHashMap<String, T> createFieldMapping(PersistentClass persistentClass, Function<Field, T> function) {
-    LinkedHashMap<String, T> commentMapping = new LinkedHashMap<>();
-    MappedSuperclass superMappedSuperclass = persistentClass.getSuperMappedSuperclass();
-    if (superMappedSuperclass != null) {
-      if (superMappedSuperclass.getSuperPersistentClass() != null) {
-        commentMapping.putAll(createFieldMapping(superMappedSuperclass.getSuperPersistentClass(), function));
-      } else {
-        commentMapping.putAll(createFieldMapping(superMappedSuperclass.getMappedClass(), function));
-      }
-    }
-    commentMapping.putAll(createFieldMapping(persistentClass.getMappedClass(), function));
-    return commentMapping;
-  }
-
-  private <T> LinkedHashMap<String, T> createFieldMapping(Class<?> mappedClass, Function<Field, T> function) {
-    LinkedHashMap<String, T> commentMapping = new LinkedHashMap<>();
-    for (Field field : mappedClass.getDeclaredFields()) {
-      String columnName = getColumnName(field);
-      commentMapping.put(columnName, function.apply(field));
-    }
-    return commentMapping;
   }
 
   private String getColumnName(Field field) {
@@ -168,62 +140,91 @@ public class CustomConfiguration extends Configuration {
   }
 
   private void processColumnOrder() {
+    LinkedHashMultimap<Table, PersistentClass> multiMap = LinkedHashMultimap.create();
     for (PersistentClass persistentClass : classes.values()) {
-      LinkedHashMap<String, ColumnOrder> orderMapping = createFieldMapping(persistentClass,
-          new Function<Field, ColumnOrder>() {
-            @Override
-            public ColumnOrder apply(Field field) {
-              return field.getAnnotation(ColumnOrder.class);
-            }
-          });
-      List<String> idColmun = findAnnotatedFields(persistentClass, Id.class);
-      List<String> versionColmun = findAnnotatedFields(persistentClass, Version.class);
-
+      multiMap.put(persistentClass.getTable(), persistentClass);
+    }
+    for (val entry : multiMap.asMap().entrySet()) {
+      LinkedHashMap<Class<?>, LinkedHashMap<String, Field>> fieldMapping = new LinkedHashMap<>();
+      for (val persistentClass : entry.getValue()) {
+        fieldMapping.putAll(createFieldMapping(persistentClass));
+      }
+      Table table = entry.getKey();
       List<OrderingColumn> orderingColumns = new ArrayList<>();
-      @SuppressWarnings("rawtypes")
-      Iterator columnIterator = persistentClass.getTable().getColumnIterator();
+      @SuppressWarnings("unchecked")
+      Iterator<Column> columnIterator = table.getColumnIterator();
       while (columnIterator.hasNext()) {
-        Column column = (Column) columnIterator.next();
-        Integer fieldIndex = indexOf(orderMapping, column.getName());
-        ColumnOrder order = orderMapping.get(column.getName());
-        int columnOrder = order != null ? order.value() : 0;
-        boolean id = idColmun.contains(column.getName());
-        boolean version = versionColmun.contains(column.getName());
+        Column column = columnIterator.next();
+        Integer fieldIndex = indexOf(fieldMapping, column.getName());
+        Optional<Field> field = Optional.ofNullable(getField(fieldMapping, column.getName()));
+        Optional<ColumnOrder> order = field.map(f -> f.getAnnotation(ColumnOrder.class));
+        int columnOrder = order.isPresent() ? order.get().value() : 0;
+        boolean id = field.isPresent() && field.get().getAnnotation(Id.class) != null;
+        boolean version = field.isPresent() && field.get().getAnnotation(Version.class) != null;
         orderingColumns.add(new OrderingColumn(fieldIndex, columnOrder, column, id, version));
       }
-      updateColumns(persistentClass.getTable(), orderingColumns);
+      updateColumns(table, orderingColumns);
     }
   }
 
-  private <T extends Annotation> List<String> findAnnotatedFields(PersistentClass persistentClass,
-      final Class<T> annotation) {
-    LinkedHashMap<String, T> mapping = createFieldMapping(persistentClass, new Function<Field, T>() {
-      @Override
-      public T apply(Field field) {
-        return field.getAnnotation(annotation);
-      }
-    });
-    List<String> ret = new ArrayList<>();
-    for (val entry : mapping.entrySet()) {
-      if (entry.getValue() == null) {
-        continue;
-      }
-      ret.add(entry.getKey());
+  private LinkedHashMap<Class<?>, LinkedHashMap<String, Field>> createFieldMapping(PersistentClass persistentClass) {
+    LinkedHashMap<Class<?>, LinkedHashMap<String, Field>> fieldMapping = new LinkedHashMap<>();
+    if (persistentClass.getSuperclass() != null) {
+      fieldMapping.putAll(createFieldMapping(persistentClass.getSuperclass()));
     }
-    return ret;
+    if (persistentClass.getSuperMappedSuperclass() != null) {
+      fieldMapping.putAll(createFieldMapping(persistentClass.getSuperMappedSuperclass()));
+    }
+    Class<?> mappedClass = persistentClass.getMappedClass();
+    fieldMapping.put(mappedClass, createFieldMapping(mappedClass));
+    return fieldMapping;
   }
 
-  private Integer indexOf(LinkedHashMap<String, ColumnOrder> orderMapping, String name) {
+  private LinkedHashMap<Class<?>, LinkedHashMap<String, Field>> createFieldMapping(MappedSuperclass mappedSuperclass) {
+    LinkedHashMap<Class<?>, LinkedHashMap<String, Field>> fieldMapping = new LinkedHashMap<>();
+    if (mappedSuperclass.getSuperPersistentClass() != null) {
+      fieldMapping.putAll(createFieldMapping(mappedSuperclass.getSuperPersistentClass()));
+    }
+    if (mappedSuperclass.getSuperMappedSuperclass() != null) {
+      fieldMapping.putAll(createFieldMapping(mappedSuperclass.getSuperMappedSuperclass()));
+    }
+    Class<?> mappedClass = mappedSuperclass.getMappedClass();
+    fieldMapping.put(mappedClass, createFieldMapping(mappedClass));
+    return fieldMapping;
+  }
+
+  private LinkedHashMap<String, Field> createFieldMapping(Class<?> mappedClass) {
+    LinkedHashMap<String, Field> commentMapping = new LinkedHashMap<>();
+    for (Field field : mappedClass.getDeclaredFields()) {
+      commentMapping.put(getColumnName(field), field);
+    }
+    return commentMapping;
+  }
+
+  private Integer indexOf(LinkedHashMap<Class<?>, LinkedHashMap<String, Field>> fieldMapping, String name) {
     Integer index = null;
     int counter = 0;
-    for (String columnName : orderMapping.keySet()) {
-      if (columnName.equals(name)) {
-        index = counter;
-        break;
+    for (val map : fieldMapping.values()) {
+      for (val columnName : map.keySet()) {
+        if (columnName.equals(name)) {
+          index = counter;
+          break;
+        }
+        counter++;
       }
-      counter++;
     }
     return index;
+  }
+
+  private Field getField(LinkedHashMap<Class<?>, LinkedHashMap<String, Field>> fieldMapping, String name) {
+    for (val map : fieldMapping.values()) {
+      for (val entry : map.entrySet()) {
+        if (entry.getKey().equals(name)) {
+          return entry.getValue();
+        }
+      }
+    }
+    return null;
   }
 
   @SneakyThrows
