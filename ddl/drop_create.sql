@@ -12,6 +12,7 @@
         id  bigserial not null,
         version int8 not null,
         name varchar(255) not null,
+        rounding_mode int4,
         create_date_time timestamp not null,
         update_date_time timestamp not null,
         primary key (id)
