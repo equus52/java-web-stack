@@ -265,6 +265,17 @@ module.exports = function (grunt) {
           src: ['**']
         },
         ]
+      },
+      coffee: {
+        files: [
+        {
+          expand: true,
+          dot: true,
+          cwd: '<%= conf.dir.coffee %>',
+          dest: '<%= conf.dir.jsGen %>',
+          src: ['**/*.coffee']
+        },
+        ]
       }
     },
 
@@ -281,6 +292,7 @@ module.exports = function (grunt) {
   grunt.registerTask('js_compile', [
     'clean:js',
     'coffee',
+    'copy:coffee',
   ]);
 
   grunt.registerTask('css_compile', [
