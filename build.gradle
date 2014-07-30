@@ -2,6 +2,7 @@ apply from: 'build-base.gradle'
 
 apply from: 'gradle/java.gradle'
 apply from: 'gradle/eclipse.gradle'
+apply from: 'gradle/checkstyle.gradle'
 apply from: 'gradle/findbugs.gradle'
 apply from: 'gradle/eclipse-wtp.gradle'
 apply from: 'gradle/web.gradle'

@@ -5,12 +5,15 @@ findbugs {
   // version setting
   toolVersion = '3.0.0'
   
+  // effort setting
+  effort = 'max'
+  
   // exclude filter setting
   excludeFilter = file("${configurationDir}/findbugs/findbugs-excludeFilter.xml")
 }
 
 // ignore failures
-[findbugs, findbugsTest]*.ignoreFailures = true
+[findbugsMain, findbugsTest]*.ignoreFailures = true
 
 // eclipse settings
 eclipse.project {

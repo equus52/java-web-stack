@@ -1,0 +1,18 @@
+// called from each project applying checkstyle plugin
+apply plugin: 'checkstyle'
+
+// configuration file settings
+def checkstyleDir = new File(configurationDir, 'checkstyle')
+checkstyle {
+  configFile = new File(checkstyleDir, "checkstyle.xml")
+  configProperties.samedir = checkstyleDir
+}
+
+// ignore failures
+[checkstyleMain, checkstyleTest]*.ignoreFailures = true
+
+// eclipse settings
+eclipse.project {
+  natures "net.sf.eclipsecs.core.CheckstyleNature"
+  buildCommand "net.sf.eclipsecs.core.CheckstyleBuilder"
+}
