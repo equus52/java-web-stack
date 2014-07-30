@@ -34,8 +34,9 @@ public class CommandLauncher {
       launcher.execute(params);
     } catch (Throwable t) {
       log.error("command failed.", t);
-
+      System.exit(-1);
     }
+    System.exit(0);
   }
 
   @Data

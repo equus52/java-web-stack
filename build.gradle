@@ -2,6 +2,7 @@ apply from: 'build-base.gradle'
 
 apply from: 'gradle/java.gradle'
 apply from: 'gradle/eclipse.gradle'
+apply from: 'gradle/findbugs.gradle'
 apply from: 'gradle/eclipse-wtp.gradle'
 apply from: 'gradle/web.gradle'
 apply from: 'gradle/application.gradle'
@@ -18,7 +19,7 @@ dependencies {
   compile libraries.guice
   compile libraries.guice_servlet
   compile libraries.guice_persist
-  
+
   compile libraries.guice_bridge
   compile libraries.hibernate_entitymanager
   compile libraries.querydsl_jpa

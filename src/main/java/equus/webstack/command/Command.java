@@ -17,10 +17,8 @@ public interface Command {
       execute(args);
     } catch (Throwable t) {
       getLogger().error(String.format("%s is failed.", getCommandName()), t);
-      System.exit(-1);
     }
     getLogger().info(String.format("%s is finished.", getCommandName()));
-    System.exit(0);
   }
 
 }
