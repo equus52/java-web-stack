@@ -1,0 +1,17 @@
+// add allJavadoc task generating all subproject Javadoc
+apply plugin: 'java'
+
+task allJavadoc(type: Javadoc) {
+  options.encoding = 'UTF-8'
+  destinationDir = file("${buildDir}/docs/javadoc")
+
+  subprojects {
+    afterEvaluate { Project subproject ->
+      source += [subproject.sourceSets.main.allJava]
+      classpath += [subproject.sourceSets.main.compileClasspath]
+    }
+  }
+}
+
+// allJavadoc execute on build task
+build.dependsOn allJavadoc

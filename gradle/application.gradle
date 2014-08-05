@@ -23,3 +23,6 @@ startScripts << {
   unixScript.text = unixScript.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/config/:$APP_HOME/lib')
   windowsScript.text = windowsScript.text.replaceFirst(/set CLASSPATH=%APP_HOME%.*/, 'set CLASSPATH=%APP_HOME%/config/;%APP_HOME%/lib/*')
 }
+
+// distZip execute on build task
+build.dependsOn distZip
