@@ -1,6 +1,7 @@
 package equus.webstack.service.module;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.matcher.Matchers;
 
 import equus.webstack.service.CustomerService;
 import equus.webstack.service.CustomerServiceImpl;
@@ -11,6 +12,9 @@ public class ServiceModule extends AbstractModule {
 
   @Override
   protected void configure() {
+    bindInterceptor(Matchers.subclassesOf(PersistenceServiceInterceptor.TARGET_CLASS), Matchers.any(),
+        new PersistenceServiceInterceptor());
+
     bind(CustomerService.class).to(CustomerServiceImpl.class);
     bind(OrderService.class).to(OrderServiceImpl.class);
   }

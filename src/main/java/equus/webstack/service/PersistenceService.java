@@ -17,8 +17,10 @@ public interface PersistenceService<T extends BaseEntity> {
   Class<T> getEntityClass();
 
   default List<T> findAll() {
+    Class<T> entityClass = getEntityClass();
     val builder = getEntityManager().getCriteriaBuilder();
-    val criteria = builder.createQuery(getEntityClass());
+    val criteria = builder.createQuery(entityClass);
+    criteria.from(entityClass);
     return getEntityManager().createQuery(criteria).getResultList();
   }
 

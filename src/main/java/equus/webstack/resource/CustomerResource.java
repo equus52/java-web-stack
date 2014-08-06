@@ -1,5 +1,7 @@
 package equus.webstack.resource;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -18,6 +20,20 @@ public class CustomerResource {
   private final CustomerService customerService;
 
   @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public List<Customer> findAll() {
+    boolean test = false;
+    if (test) {
+      val customer = customerService.findByPrimaryKey(1);
+      customer.setName("BBB");
+      customerService.update(customer);
+    }
+
+    return customerService.findAll();
+  }
+
+  @GET
+  @Path("/test")
   @Produces(MediaType.APPLICATION_JSON)
   public Customer getHello() {
     val customer = new Customer();

@@ -44,7 +44,7 @@ task prepareWar(type: Exec) {
     commandLine 'cmd', '/c', 'grunt dist'
   } else {
     // for UNIX
-    commandLine 'grunt', 'dist'
+    commandLine 'grunt','dist'
   }
   // contents root settings
   project.webAppDirName = 'dist'

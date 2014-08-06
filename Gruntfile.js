@@ -43,7 +43,7 @@ module.exports = function (grunt) {
       },
       jsCompile: {
         files: ['<%= conf.dir.coffee %>/**/*.{coffee,litcoffee,coffee.md}'],
-        tasks: ['newer:js_compile']
+        tasks: ['js_compile']
       },
       cssCompile: {
         files: ['<%= conf.dir.sass %>/**/*.{scss,sass}'],
@@ -282,7 +282,7 @@ module.exports = function (grunt) {
     // Run some tasks in parallel to speed up the build process
     concurrent: {
       compile: [
-        'js_compile',
+        'js_clean_compile',
         'css_compile',
       ]
     },
@@ -290,9 +290,13 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('js_compile', [
-    'clean:js',
     'coffee',
     'copy:coffee',
+  ]);
+
+  grunt.registerTask('js_clean_compile', [
+    'clean:js',
+    'js_compile',
   ]);
 
   grunt.registerTask('css_compile', [
