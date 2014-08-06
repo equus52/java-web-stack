@@ -3,7 +3,7 @@
 ext {
   guice_version = '3.0'
   querydsl_jpa_version = '3.4.0'
-  jersey_version = '2.9.1'
+  jersey_version = '2.11'
   jetty_version = '9.2.1.v20140609'
   
   libraries = [

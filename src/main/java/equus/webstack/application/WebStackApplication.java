@@ -18,6 +18,18 @@ import equus.webstack.application.module.ApplicationModule;
 import equus.webstack.converter.json.CustomObjectMapper;
 
 public class WebStackApplication extends ResourceConfig {
+
+  private static Injector injector = null;
+
+  public static Injector getInjector() {
+    return injector;
+  }
+
+  // for test
+  public static void setInjector(Injector injector) {
+    WebStackApplication.injector = injector;
+  }
+
   @Inject
   public WebStackApplication(ServiceLocator serviceLocator) {
     packages("equus.webstack.resource");
@@ -26,7 +38,10 @@ public class WebStackApplication extends ResourceConfig {
 
     GuiceBridge.getGuiceBridge().initializeGuiceBridge(serviceLocator);
     GuiceIntoHK2Bridge guiceBridge = serviceLocator.getService(GuiceIntoHK2Bridge.class);
-    guiceBridge.bridgeGuiceInjector(createInjector());
+    if (injector == null) {
+      injector = createInjector();
+    }
+    guiceBridge.bridgeGuiceInjector(injector);
 
     JacksonJaxbJsonProvider provider = new JacksonJaxbJsonProvider();
     provider.setMapper(new CustomObjectMapper());

@@ -9,8 +9,8 @@ public class ApplicationModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    install(new PersistenceModule());
     install(new ServiceModule());
+    install(new PersistenceModule());
   }
 
 }

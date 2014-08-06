@@ -1,5 +1,10 @@
 package equus.webstack.application;
 
+import java.net.URI;
+
+import javax.ws.rs.core.UriBuilder;
+
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +16,9 @@ import org.eclipse.jetty.webapp.WebAppContext;
 public class JettyStarter {
   private final int port = 9010;
   private final String contextPath = "/java-web-stack/";
+  private final String apiPath = "api";
+  @Setter
+  private boolean resourceEnable = true;
   private String resourceBase = "WebContent";
 
   public static void main(String[] args) {
@@ -23,6 +31,12 @@ public class JettyStarter {
 
   @SneakyThrows
   public void start() {
+    Server server = startServer();
+    server.join();
+  }
+
+  @SneakyThrows
+  public Server startServer() {
     val server = createServer();
 
     val shutdownHook = new Thread(() -> {
@@ -35,8 +49,19 @@ public class JettyStarter {
     Runtime.getRuntime().addShutdownHook(shutdownHook);
 
     server.start();
-    System.out.println("URL http://localhost:" + port + contextPath);
-    server.join();
+    if (resourceEnable) {
+      System.out.println("URL " + getBaseURI());
+    }
+    System.out.println("API URL " + getAPIBaseURI());
+    return server;
+  }
+
+  public URI getBaseURI() {
+    return UriBuilder.fromUri("http://localhost/").port(port).path(contextPath).build();
+  }
+
+  public URI getAPIBaseURI() {
+    return UriBuilder.fromUri("http://localhost/").port(port).path(contextPath).path(apiPath).build();
   }
 
   private Server createServer() {
@@ -45,8 +70,10 @@ public class JettyStarter {
     context.setServer(server);
     context.setContextPath(contextPath);
     context.setDescriptor("WebContent/WEB-INF/web.xml");
-    context.setResourceBase(resourceBase);
     context.setParentLoaderPriority(true);
+    if (resourceEnable) {
+      context.setResourceBase(resourceBase);
+    }
     server.setHandler(context);
     return server;
   }

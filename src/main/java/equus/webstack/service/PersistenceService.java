@@ -48,12 +48,17 @@ public interface PersistenceService<T extends BaseEntity> {
 
   @Transactional
   default T update(T entity) {
-    getEntityManager().merge(entity);
-    return entity;
+    return getEntityManager().merge(entity);
   }
 
   @Transactional
   default void delete(T entity) {
-    getEntityManager().remove(entity);
+    getEntityManager().remove(getEntityManager().merge(entity));
+  }
+
+  @Transactional
+  default void deleteByVersion(int id, int version) {
+    T entity = findByVersion(id, version);
+    getEntityManager().remove(getEntityManager().merge(entity));
   }
 }

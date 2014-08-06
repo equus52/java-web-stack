@@ -19,5 +19,4 @@ public class CustomerServiceImpl implements CustomerService {
   public Class<Customer> getEntityClass() {
     return Customer.class;
   }
-
 }

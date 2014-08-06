@@ -8,7 +8,7 @@ import equus.webstack.service.PersistenceService;
 public class PersistenceServiceInterceptor implements MethodInterceptor {
   @SuppressWarnings("rawtypes")
   public static Class<PersistenceService> TARGET_CLASS = PersistenceService.class;
-  public static String[] EXCLUDE_MTHODS = new String[] { "getEntityManager", "getEntityClass" };
+  static String[] EXCLUDE_MTHODS = new String[] { "getEntityManager", "getEntityClass" };
 
   @Override
   public Object invoke(MethodInvocation invocation) throws Throwable {
