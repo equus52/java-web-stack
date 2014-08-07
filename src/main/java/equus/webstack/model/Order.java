@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 
@@ -22,7 +23,7 @@ public class Order extends BaseEntity {
   private ZonedDateTime orderDateTime;
 
   @Column(nullable = true)
-  @OneToMany(cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JoinColumn(name = "order_id")
   private List<OrderItem> orderItemList;
 }

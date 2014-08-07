@@ -1,21 +1,39 @@
 package equus.webstack.command;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
+
+import org.slf4j.Logger;
 
 import com.google.inject.Injector;
 
+import equus.webstack.model.Course;
 import equus.webstack.model.Customer;
+import equus.webstack.model.Student;
+import equus.webstack.service.CourseService;
 import equus.webstack.service.CustomerService;
+import equus.webstack.service.StudentService;
 
-public class DBInitializeWithTestDataCommand {
+@Slf4j
+public class DBInitializeWithTestDataCommand implements Command {
 
-  public static void main(String[] args) {
-    new DBInitializeWithTestDataCommand().execute();
+  @Override
+  public Logger getLogger() {
+    return log;
   }
 
-  public void execute() {
+  public static void main(String[] args) {
+    new DBInitializeWithTestDataCommand().executeCommand(args);
+  }
+
+  @Override
+  public void execute(String... args) {
     new DBInitializeCommand().execute(injector -> {
       initCustomer(injector);
+      initStudent(injector);
       // setup test data
       });
   }
@@ -29,4 +47,49 @@ public class DBInitializeWithTestDataCommand {
 
   }
 
+  private void initStudent(Injector injector) {
+    List<Course> courseList = initCourse(injector);
+    List<Student> list = new ArrayList<>();
+    {
+      val entity = new Student();
+      entity.setName("student_A");
+      entity.setCourseList(courseList);
+      list.add(entity);
+    }
+    {
+      val entity = new Student();
+      entity.setName("student_B");
+      entity.setCourseList(courseList);
+      list.add(entity);
+    }
+    val service = injector.getInstance(StudentService.class);
+    for (val entity : list) {
+      service.save(entity);
+    }
+    val list2 = service.findAll();
+    for (val entity : list2) {
+      for (val c : entity.getCourseList()) {
+        System.out.println();
+      }
+    }
+  }
+
+  private List<Course> initCourse(Injector injector) {
+    List<Course> list = new ArrayList<>();
+    {
+      val entity = new Course();
+      entity.setName("course_A");
+      list.add(entity);
+    }
+    {
+      val entity = new Course();
+      entity.setName("course_B");
+      list.add(entity);
+    }
+    val service = injector.getInstance(CourseService.class);
+    for (val entity : list) {
+      service.save(entity);
+    }
+    return list;
+  }
 }

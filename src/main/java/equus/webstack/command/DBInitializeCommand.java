@@ -2,7 +2,6 @@ package equus.webstack.command;
 
 import java.util.function.Consumer;
 
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
 import org.slf4j.Logger;
@@ -32,11 +31,17 @@ public class DBInitializeCommand implements Command {
 
   public void execute(Consumer<Injector> block) {
     new DBDropCreateCommand().execute();
-    val injector = WebStackApplication.createInjector();
-    // setup initial data
+    Injector injector = null;
+    try {
+      injector = WebStackApplication.createInjector();
+      // setup initial data
 
-    block.accept(injector);
-    injector.getInstance(WebStackFinalizer.class).stop();
+      block.accept(injector);
+    } finally {
+      if (injector != null) {
+        injector.getInstance(WebStackFinalizer.class).stop();
+      }
+    }
   }
 
 }

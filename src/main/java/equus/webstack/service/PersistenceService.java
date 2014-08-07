@@ -59,6 +59,6 @@ public interface PersistenceService<T extends BaseEntity> {
   @Transactional
   default void deleteByVersion(int id, int version) {
     T entity = findByVersion(id, version);
-    getEntityManager().remove(getEntityManager().merge(entity));
+    delete(entity);
   }
 }
