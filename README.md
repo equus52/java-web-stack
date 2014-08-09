@@ -1,6 +1,5 @@
-java-web-stack
+java-web-stack [![Build Status](https://secure.travis-ci.org/equus52/java-web-stack.png)](https://travis-ci.org/equus52/java-web-stack)
 ==============
-[![Build Status](https://secure.travis-ci.org/equus52/java-web-stack.png)](https://travis-ci.org/equus52/java-web-stack)
 
 A web stack sample with Java REST API
 
