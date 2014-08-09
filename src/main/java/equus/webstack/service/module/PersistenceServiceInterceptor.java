@@ -1,5 +1,7 @@
 package equus.webstack.service.module;
 
+import javax.persistence.EntityManager;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -12,15 +14,39 @@ public class PersistenceServiceInterceptor implements MethodInterceptor {
 
   @Override
   public Object invoke(MethodInvocation invocation) throws Throwable {
-    Object ret = invocation.proceed();
-    if (isTarget(invocation)) {
-      PersistenceService<?> service = (PersistenceService<?>) invocation.getThis();
-      service.getEntityManager().clear();
+    Object ret = null;
+    try {
+      ret = invocation.proceed();
+    } finally {
+      if (isTarget(invocation)) {
+        postInvoke(invocation, ret);
+      }
     }
     return ret;
   }
 
-  public boolean isTarget(MethodInvocation invocation) {
+  protected void postInvoke(MethodInvocation invocation, Object ret) {
+    if (ret == null) {
+      return;
+    }
+    PersistenceService<?> service = (PersistenceService<?>) invocation.getThis();
+    EntityManager em = service.getEntityManager();
+    if (!em.isJoinedToTransaction()) {
+      detach(em, ret);
+    }
+  }
+
+  private void detach(EntityManager em, Object value) {
+    if (value instanceof Iterable) {
+      for (Object element : (Iterable<?>) value) {
+        detach(em, element);
+      }
+    } else {
+      em.detach(value);
+    }
+  }
+
+  private boolean isTarget(MethodInvocation invocation) {
     for (String excludeMethod : EXCLUDE_MTHODS) {
       if (invocation.getMethod().getName().equals(excludeMethod)) {
         return false;
