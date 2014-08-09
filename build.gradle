@@ -9,14 +9,6 @@ apply from: 'gradle/web.gradle'
 apply from: 'gradle/application.gradle'
 
 dependencies {
-  compile libraries.jsr305
-  compile libraries.guava
-  compile libraries.logback_classic
-  compile libraries.groovy_all
-  compile libraries.lombok
-  compile libraries.reflections
-  compile libraries.commons_lang3
-  compile libraries.args4j
   compile libraries.guice
   compile libraries.guice_servlet
   compile libraries.guice_persist

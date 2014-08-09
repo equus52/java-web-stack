@@ -34,9 +34,10 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 }
 artifacts { archives sourcesJar }
 
-// test common dependencies settings
+// common dependencies settings
 dependencies {
-  libraries.test.each { key, value -> testCompile value }
+  libraries.common.compile.each { key, value -> compile value }
+  libraries.common.testCompile.each { key, value -> testCompile value }
 }
 
 // local dependencies settings
