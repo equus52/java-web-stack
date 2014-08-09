@@ -27,18 +27,21 @@ dependencies {
   compile libraries.jetty_webapp
 }
 
-// task preparing for war task
 import org.apache.tools.ant.taskdefs.condition.Os
-task prepareWar(type: Exec) {
-  // execute grunt dist
-  if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-    // for Windows
-    commandLine 'cmd', '/c', 'grunt dist'
-  } else {
-    // for UNIX
-    commandLine 'grunt','dist'
+if (envName == 'dist'){
+  
+  // task preparing for war task
+  task prepareWar(type: Exec) {
+    // execute grunt dist
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+      // for Windows
+      commandLine 'cmd', '/c', 'grunt dist'
+    } else {
+      // for UNIX
+      commandLine 'grunt','dist'
+    }
+    // contents root settings
+    project.webAppDirName = 'dist'
   }
-  // contents root settings
-  project.webAppDirName = 'dist'
+  war.dependsOn prepareWar
 }
-war.dependsOn prepareWar
