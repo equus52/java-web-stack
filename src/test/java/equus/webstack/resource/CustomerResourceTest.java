@@ -13,6 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import equus.webstack.application.JettyStarter;
+import equus.webstack.application.WebStackApplication;
+import equus.webstack.application.module.TestModules;
 
 public class CustomerResourceTest {
   private Server server;
@@ -20,6 +22,7 @@ public class CustomerResourceTest {
 
   @Before
   public void before() throws Exception {
+    WebStackApplication.setInjector(TestModules.createWebMockInjector());
     JettyStarter starter = new JettyStarter();
     server = starter.startServer();
 
