@@ -28,7 +28,9 @@ dependencies {
 }
 
 import org.apache.tools.ant.taskdefs.condition.Os
-if (envName == 'dist'){
+
+// dist mode (-Pmode=dist)
+if (project.hasProperty('mode') && mode == 'dist') {
   
   // task preparing for war task
   task prepareWar(type: Exec) {

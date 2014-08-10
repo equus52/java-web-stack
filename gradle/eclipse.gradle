@@ -37,7 +37,7 @@ eclipse.classpath.file {
 }
 
 // make source dirs task
-task makeSourceDirs {
+task makeSourceDirs << {
   def sources = [
     sourceSets.main,
     sourceSets.test

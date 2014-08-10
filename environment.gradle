@@ -1,0 +1,64 @@
+// environment settings
+// called one time from root project
+
+// available env list setting
+ext {
+  envRootName = 'environment'
+  envList = []
+}
+def defaultDir = 'default'
+file(envRootName).listFiles().each { file ->
+  def envName = file.name
+  if (envName == defaultDir) {
+    return
+  }
+  envList +=[envName]
+}
+def confFileName = 'configuration.properties'
+
+// exclude files
+ext {
+  excludeFiles = [confFileName]
+}
+excludeFiles += ['*.groovy']
+
+// environment config task
+task environmentConfig() << {
+
+  envList.each { envName ->
+    def tmpDir = "${buildDir}/tmp/${envRootName}"
+    allprojects {
+      copy {
+        from("${project.projectDir.getAbsolutePath()}/${mainConfigPath}")
+        into("${tmpDir}/${envName}")
+      }
+    }
+    copy {
+      from("${envRootName}/${defaultDir}")
+      into("${tmpDir}/${envName}")
+    }
+    copy {
+      from("${envRootName}/${envName}")
+      into("${tmpDir}/${envName}")
+    }
+    copy {
+      from("${tmpDir}/${envName}")
+      into("${buildDir}/${envRootName}/${envName}")
+      exclude confFileName
+    }
+    
+    def confFile = new File("${tmpDir}/${envName}/${confFileName}")
+    if (confFile.isFile()) {
+      def props = new Properties()
+      confFile.withInputStream { stream ->
+        props.load(stream)
+      }
+      copy {
+        from("${tmpDir}/${envName}") { exclude confFileName }
+        into("${buildDir}/${envRootName}/${envName}")
+        exclude excludeFiles
+        expand(props)
+      }
+    }
+  }
+}

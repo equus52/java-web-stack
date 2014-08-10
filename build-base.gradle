@@ -1,7 +1,7 @@
 // called one time from root project
 apply from: 'configurations.gradle'
+apply from: 'environment.gradle'
 apply from: 'libraries.gradle'
-
-apply from: 'gradle/allJavadoc.gradle'
+apply from: 'allJavadoc.gradle'
 
 task wrapper(type: Wrapper) { gradleVersion = '2.0' }

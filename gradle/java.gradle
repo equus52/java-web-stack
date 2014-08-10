@@ -11,6 +11,11 @@ sourceCompatibility = jdkVersion
 targetCompatibility = jdkVersion
 tasks.withType(AbstractCompile) { options.bootClasspath = "${System.getProperty("java.home")}/lib/rt.jar" }
 
+// java dirctory as resources directory settings
+sourceSets.main.resources.srcDirs 'src/main/java'
+// config dirctory as resources directory settings
+sourceSets.test.resources.srcDirs mainConfigPath
+
 // jar settings
 jar {
   manifest {
@@ -58,4 +63,17 @@ sourceSets {
 sourceSets {
   main.compileClasspath += configurations.buildCompile
   test.compileClasspath += configurations.buildCompile
+}
+
+// call environmentConfig task
+processResources.dependsOn rootProject.environmentConfig
+
+// copy environment config files for test
+processTestResources {
+  doLast {
+    copy {
+      from("${rootProject.buildDir}/${envRootName}/${env}")
+      into destinationDir
+    }
+  }
 }

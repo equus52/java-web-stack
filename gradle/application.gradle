@@ -4,18 +4,31 @@ apply plugin: 'application'
 // main class setting
 mainClassName = app_mainClassName
 
-// zip name setting
-distZip { baseName = app_baseName }
+// each environment distZip task
+task eachDistZip (dependsOn: [jar, startScripts]) << {
+  envList.each { envName ->
+    task("${envName}DistZip", type: Zip) {
 
-// include config directory setting
-distZip {
-  into(project.name) {
-    allprojects{
-      from "../${project.name}/src/main/"
-      include 'config/*'
-    }
+      into('bin') { from startScripts.outputDir }
+      into('lib') {
+        from jar.archivePath
+        from configurations.runtime
+      }
+
+      // zip name setting
+      baseName = app_baseName
+      appendix = envName
+
+      // include environment config setting
+      into('config') {
+        from "${rootProject.buildDir}/${envRootName}/${envName}"
+        include '**/*'
+      }
+    }.execute()
   }
 }
+// distZip execute on build task
+build.dependsOn eachDistZip
 
 // force overwrite because not work in what follows
 // startScripts.classpath.add(files('$APP_HOME/config'))
@@ -23,6 +36,3 @@ startScripts << {
   unixScript.text = unixScript.text.replace('CLASSPATH=$APP_HOME/lib', 'CLASSPATH=$APP_HOME/config/:$APP_HOME/lib')
   windowsScript.text = windowsScript.text.replaceFirst(/set CLASSPATH=%APP_HOME%.*/, 'set CLASSPATH=%APP_HOME%/config/;%APP_HOME%/lib/*')
 }
-
-// distZip execute on build task
-build.dependsOn distZip

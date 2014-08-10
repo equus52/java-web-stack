@@ -18,7 +18,23 @@ eclipse.wtp.component { contextPath = contextRoot }
 // contents root setting
 project.webAppDirName = webContentsRoot
 
-// war manifest setting
-war {
-  manifest.attributes = jar.manifest.attributes
+// each environment war task
+task eachWar (dependsOn: [classes]) << {
+  envList.each { envName ->
+    task("${envName}War", type: War) {
+      // war name setting
+      appendix = envName
+
+      // war manifest setting
+      manifest.attributes = jar.manifest.attributes
+
+      // include environment config setting
+      into("WEB-INF/classes") {
+        from "${rootProject.buildDir}/${envRootName}/${envName}"
+        include '**/*'
+      }
+    }.execute()
+  }
 }
+war.enabled = false
+build.dependsOn eachWar
