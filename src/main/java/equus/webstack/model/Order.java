@@ -1,7 +1,7 @@
 package equus.webstack.model;
 
 import java.time.ZonedDateTime;
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -25,5 +25,5 @@ public class Order extends BaseEntity {
   @Column(nullable = true)
   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JoinColumn(name = "order_id")
-  private List<OrderItem> orderItemList;
+  private Set<OrderItem> orderItemList;
 }

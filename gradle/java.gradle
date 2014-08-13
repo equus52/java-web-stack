@@ -63,6 +63,13 @@ sourceSets {
 sourceSets {
   main.compileClasspath += configurations.buildCompile
   test.compileClasspath += configurations.buildCompile
+  test.runtimeClasspath += configurations.provided
+}
+
+// buildTestCompile implements
+sourceSets {
+  test.compileClasspath += configurations.buildCompile
+  test.runtimeClasspath += configurations.provided
 }
 
 // call environmentConfig task

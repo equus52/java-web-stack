@@ -1,7 +1,7 @@
 package equus.webstack.command;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -48,8 +48,8 @@ public class DBInitializeWithTestDataCommand implements Command {
   }
 
   private void initStudent(Injector injector) {
-    List<Course> courseList = initCourse(injector);
-    List<Student> list = new ArrayList<>();
+    Set<Course> courseList = initCourse(injector);
+    Set<Student> list = new HashSet<>();
     {
       val entity = new Student();
       entity.setName("student_A");
@@ -74,8 +74,8 @@ public class DBInitializeWithTestDataCommand implements Command {
     }
   }
 
-  private List<Course> initCourse(Injector injector) {
-    List<Course> list = new ArrayList<>();
+  private Set<Course> initCourse(Injector injector) {
+    Set<Course> list = new HashSet<>();
     {
       val entity = new Course();
       entity.setName("course_A");

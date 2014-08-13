@@ -1,6 +1,6 @@
 package equus.webstack.model;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,5 +21,5 @@ public class Student extends BaseEntity {
 
   @Column(nullable = true)
   @ManyToMany(fetch = FetchType.EAGER)
-  private List<Course> courseList;
+  private Set<Course> courseList;
 }
