@@ -26,3 +26,9 @@ Java 8+
 ## Licence
 
 The MIT License (MIT)
+
+## Donations
+
+Your donation is great appreciated.
+
+PayPal: stepdesign81@gmail.com
