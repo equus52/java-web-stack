@@ -4,6 +4,7 @@ apply plugin: 'java'
 // encoding settings
 def defaultEncoding = 'UTF-8'
 tasks.withType(AbstractCompile) each { it.options.encoding = defaultEncoding }
+test.systemProperty 'file.encoding', defaultEncoding
 javadoc { options.encoding = defaultEncoding }
 
 // Java version settings

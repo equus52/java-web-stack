@@ -283,7 +283,7 @@ module.exports = function (grunt) {
     concurrent: {
       compile: [
         'js_clean_compile',
-        'css_compile',
+        'css_clean_compile',
       ]
     },
 
@@ -300,9 +300,13 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('css_compile', [
-    'clean:css',
     'compass',
     'autoprefixer',
+  ]);
+
+  grunt.registerTask('css_clean_compile', [
+    'clean:css',
+    'css_compile',
   ]);
 
   grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {

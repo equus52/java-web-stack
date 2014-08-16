@@ -12,6 +12,9 @@ if (!project.hasProperty('env')) {
 }
 
 ext {
+  // system
+  defaultEncoding = 'UTF-8'
+  
   // product
   productVersion = '0.0.1-SNAPSHOT'
   configurationDir = new File(buildscript.sourceFile.parentFile, 'configuration')
@@ -28,3 +31,6 @@ ext {
   contextRoot = 'java-web-stack'
   webContentsRoot = 'WebContent'
 }
+
+// encoding settings
+System.properties['file.encoding'] = defaultEncoding
