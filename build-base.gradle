@@ -10,6 +10,13 @@ task wrapper(type: Wrapper) { gradleVersion = '2.0' }
 def dependsOn(Project project, Project projectDepended) {
   project.dependencies {
     compile projectDepended
-    buildTestCompile projectDepended.sourceSets.test.output
+  }
+  
+  project.sourceSets {
+    test.compileClasspath += projectDepended.sourceSets.test.output
+    test.runtimeClasspath += projectDepended.sourceSets.test.output
+    
+    test.compileClasspath += projectDepended.sourceSets.test.compileClasspath
+    test.runtimeClasspath += projectDepended.sourceSets.test.runtimeClasspath
   }
 }
