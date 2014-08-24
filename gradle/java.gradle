@@ -67,12 +67,6 @@ sourceSets {
   test.runtimeClasspath += configurations.provided
 }
 
-// buildTestCompile implements
-sourceSets {
-  test.compileClasspath += configurations.buildCompile
-  test.runtimeClasspath += configurations.provided
-}
-
 // call environmentConfig task
 processResources.dependsOn rootProject.environmentConfig
 
