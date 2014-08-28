@@ -14,6 +14,7 @@ tasks.withType(AbstractCompile) { options.bootClasspath = "${System.getProperty(
 
 // java dirctory as resources directory settings
 sourceSets.main.resources.srcDirs 'src/main/java'
+sourceSets.test.resources.srcDirs 'src/test/java'
 // config dirctory as resources directory settings
 sourceSets.test.resources.srcDirs mainConfigPath
 
