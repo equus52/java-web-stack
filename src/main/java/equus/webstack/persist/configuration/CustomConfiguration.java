@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.persistence.AttributeConverter;
@@ -33,6 +34,7 @@ import org.hibernate.cfg.Mappings;
 import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.internal.util.ReflectHelper;
 import org.hibernate.jpa.AvailableSettings;
+import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.internal.ParsedPersistenceXmlDescriptor;
 import org.hibernate.jpa.boot.internal.PersistenceXmlParser;
 import org.hibernate.mapping.Column;
@@ -60,7 +62,9 @@ public class CustomConfiguration extends Configuration {
       throw new RuntimeException("properties not found.");
     }
     CustomConfiguration config = new CustomConfiguration();
-    config.addProperties(unit.getProperties());
+    Properties properties = unit.getProperties();
+    properties.remove(org.hibernate.cfg.AvailableSettings.HBM2DDL_AUTO);
+    config.addProperties(properties);
     for (String className : unit.getManagedClassNames()) {
       Class<?> managedClass = ReflectHelper.classForName(className);
       if (managedClass.getAnnotation(Entity.class) != null) {
@@ -78,7 +82,14 @@ public class CustomConfiguration extends Configuration {
     }
 
     config.namingStrategy = (NamingStrategy) ReflectHelper.classForName(
-        unit.getProperties().getProperty(AvailableSettings.NAMING_STRATEGY)).newInstance();
+        properties.getProperty(AvailableSettings.NAMING_STRATEGY)).newInstance();
+
+    // enable BeanValidator
+    val factoryBuilder = new EntityManagerFactoryBuilderImpl(unit, Collections.emptyMap(), null);
+    val serviceRegistry = factoryBuilder.buildServiceRegistry();
+    val sessionFactory = config.buildSessionFactory(serviceRegistry);
+    sessionFactory.close();
+
     return config;
   }
 
