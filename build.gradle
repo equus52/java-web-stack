@@ -42,8 +42,10 @@ if (project.hasProperty('mode') && mode == 'dist') {
       // for UNIX
       commandLine 'grunt','dist'
     }
-    // contents root settings
-    project.webAppDirName = 'dist'
+    doLast {
+      // contents root settings
+      project.webAppDirName = 'dist'
+    }
   }
   war.dependsOn prepareWar
 }
