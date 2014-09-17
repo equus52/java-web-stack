@@ -2,8 +2,9 @@
 apply plugin: 'java'
 
 task allJavadoc(type: Javadoc) {
-  options.encoding = 'UTF-8'
+  options.encoding = defaultEncoding
   destinationDir = file("${buildDir}/docs/javadoc")
+  failOnError = false
 
   subprojects {
     afterEvaluate { Project subproject ->
