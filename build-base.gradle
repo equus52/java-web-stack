@@ -4,7 +4,7 @@ apply from: 'environment.gradle'
 apply from: 'libraries.gradle'
 apply from: 'allJavadoc.gradle'
 
-task wrapper(type: Wrapper) { gradleVersion = '2.0' }
+task wrapper(type: Wrapper) { gradleVersion = '2.1' }
 
 // project dependencies setting method
 def dependsOn(Project project, Project projectDepended) {
