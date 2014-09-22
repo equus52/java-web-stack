@@ -40,6 +40,7 @@ import org.hibernate.jpa.boot.internal.PersistenceXmlParser;
 import org.hibernate.mapping.Column;
 import org.hibernate.mapping.MappedSuperclass;
 import org.hibernate.mapping.PersistentClass;
+import org.hibernate.mapping.SingleTableSubclass;
 import org.hibernate.mapping.Table;
 import org.reflections.Reflections;
 
@@ -120,6 +121,9 @@ public class CustomConfiguration extends Configuration {
 
   private void processTableComment() {
     for (PersistentClass persistentClass : classes.values()) {
+      if (persistentClass instanceof SingleTableSubclass) {
+        continue;
+      }
       Class<?> mappedClass = persistentClass.getMappedClass();
       Comment comment = mappedClass.getAnnotation(Comment.class);
       if (comment == null) {
