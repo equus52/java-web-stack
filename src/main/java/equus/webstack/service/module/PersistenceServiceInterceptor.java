@@ -9,7 +9,7 @@ import equus.webstack.service.PersistenceService;
 
 public class PersistenceServiceInterceptor implements MethodInterceptor {
   @SuppressWarnings("rawtypes")
-  public static Class<PersistenceService> TARGET_CLASS = PersistenceService.class;
+  public static final Class<PersistenceService> TARGET_CLASS = PersistenceService.class;
   static String[] EXCLUDE_MTHODS = new String[] { "getEntityManager", "getEntityClass" };
 
   @Override

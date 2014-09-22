@@ -3,13 +3,65 @@
 
 // available env list setting
 ext {
+  defaultDir = 'default'
   envRootName = 'environment'
   envList = []
 }
-def defaultDir = 'default'
+
+allprojects {
+  ext {
+    dependingProjects = new LinkedHashSet()
+
+    dependsOn = {Project dependingProject ->
+      project.dependencies { compile dependingProject }
+      project.ext.dependingProjects.add dependingProject
+    }
+    
+    getDependingProjects = {
+      def set = new LinkedHashSet();
+      project.ext.dependingProjects.each { dependingProject ->
+        set.addAll(dependingProject.getDependingAllProjects())
+      }
+      return set
+    }
+    
+    getDependingAllProjects = {
+      def set = new LinkedHashSet();
+      set.addAll(project.getDependingProjects())
+      set.add(project)
+      return set
+    }
+    
+    // find effective environment list
+    // if nothing, return "default"
+    findEffectiveEnvList = {
+      def set = new LinkedHashSet();
+      envList.each { envName ->
+        def exists = false
+        project.getDependingAllProjects().each { dependingProject ->
+          def envDir = new File("${rootProject.buildDir}/${envRootName}/${envName}/${dependingProject.name}")
+          if(envDir.isDirectory()){
+            exists = true
+          }
+        }
+        if (exists) {
+          set.add(envName)
+        }
+      }
+      if (set.size() == 0) {
+        set.add(defaultDir)
+      }
+      return set
+    }
+  }
+}
+
 file(envRootName).listFiles().each { file ->
   def envName = file.name
   if (envName == defaultDir) {
+    return
+  }
+  if (envName.startsWith('.')) {
     return
   }
   envList +=[envName]
@@ -17,36 +69,40 @@ file(envRootName).listFiles().each { file ->
 def confFileName = 'configuration.properties'
 
 // exclude files
-ext {
-  excludeFiles = [confFileName]
-}
+ext { excludeFiles = [confFileName]}
 excludeFiles += ['**/*.groovy']
 
 // environment config task
 task environmentConfig() << {
 
+  // copy each projects' configuration to build/environment/default
+  subprojects.each { project ->
+    copy {
+      from("${project.projectDir.getAbsolutePath()}/${mainConfigPath}")
+      into("${buildDir}/${envRootName}/${defaultDir}/${project.name}")
+    }
+  }
+
   envList.each { envName ->
     def tmpDir = "${buildDir}/tmp/${envRootName}"
-    allprojects {
-      copy {
-        from("${project.projectDir.getAbsolutePath()}/${mainConfigPath}")
-        into("${tmpDir}/${envName}")
-      }
-    }
+    // copy default directry to tmp directry
     copy {
       from("${envRootName}/${defaultDir}")
       into("${tmpDir}/${envName}")
     }
+    // overwrite env directry to tmp directry
     copy {
       from("${envRootName}/${envName}")
       into("${tmpDir}/${envName}")
     }
+    // overwrite tmp directory to build/environment/}
     copy {
       from("${tmpDir}/${envName}")
       into("${buildDir}/${envRootName}/${envName}")
       exclude confFileName
     }
-    
+
+    // replace and overwrite
     def confFile = new File("${tmpDir}/${envName}/${confFileName}")
     if (confFile.isFile()) {
       def props = new Properties()

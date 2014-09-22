@@ -6,7 +6,7 @@ mainClassName = app_mainClassName
 
 // each environment distZip task
 task eachDistZip (dependsOn: [jar, startScripts]) << {
-  envList.each { envName ->
+  project.findEffectiveEnvList().each { envName ->
     task("${envName}DistZip", type: Zip) {
 
       into('bin') { from startScripts.outputDir }
@@ -17,12 +17,23 @@ task eachDistZip (dependsOn: [jar, startScripts]) << {
 
       // zip name setting
       baseName = app_baseName
-      appendix = envName
+      if (!envName.equals(defaultDir)) {
+        // if default, no prefix
+        appendix = envName
+      }
 
       // include environment config setting
-      into('config') {
-        from "${rootProject.buildDir}/${envRootName}/${envName}"
-        include '**/*'
+      project.getDependingAllProjects().each { project ->
+        into('config') {
+          from "${rootProject.buildDir}/${envRootName}/${defaultDir}/${project.name}"
+          include '**/*'
+        }
+      }
+      if (!envName.equals(defaultDir)) {
+        into('config') {
+          from "${rootProject.buildDir}/${envRootName}/${envName}/${project.name}"
+          include '**/*'
+        }
       }
     }.execute()
   }

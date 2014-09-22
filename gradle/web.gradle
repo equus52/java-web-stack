@@ -20,17 +20,35 @@ project.webAppDirName = webContentsRoot
 
 // each environment war task
 task eachWar (dependsOn: [classes]) << {
-  envList.each { envName ->
+  project.findEffectiveEnvList().each { envName ->
+    
+    def configurationPath = "${buildDir}/configuration/${envName}"
+    project.getDependingAllProjects().each { project ->
+      copy {
+        from "${rootProject.buildDir}/${envRootName}/${defaultDir}/${project.name}"
+        into configurationPath
+      }
+      if (!envName.equals(defaultDir)) {
+        copy {
+          from "${rootProject.buildDir}/${envRootName}/${envName}/${project.name}"
+          into configurationPath
+        }
+      }
+    }
+    
     task("${envName}War", type: War) {
       // war name setting
-      appendix = envName
+      if (!envName.equals(defaultDir)) {
+        // if default, no prefix
+        appendix = envName
+      }
 
       // war manifest setting
       manifest.attributes = jar.manifest.attributes
 
       // include environment config setting
       into("WEB-INF/classes") {
-        from "${rootProject.buildDir}/${envRootName}/${envName}"
+        from configurationPath
         include '**/*'
       }
     }.execute()

@@ -5,18 +5,3 @@ apply from: 'libraries.gradle'
 apply from: 'allJavadoc.gradle'
 
 task wrapper(type: Wrapper) { gradleVersion = '2.1' }
-
-// project dependencies setting method
-def dependsOn(Project project, Project projectDepended) {
-  project.dependencies {
-    compile projectDepended
-  }
-  
-  project.sourceSets {
-    test.compileClasspath += projectDepended.sourceSets.test.output
-    test.runtimeClasspath += projectDepended.sourceSets.test.output
-    
-    test.compileClasspath += projectDepended.sourceSets.test.compileClasspath
-    test.runtimeClasspath += projectDepended.sourceSets.test.runtimeClasspath
-  }
-}

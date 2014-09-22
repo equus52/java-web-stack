@@ -22,9 +22,9 @@ sourceSets.test.resources.srcDirs mainConfigPath
 jar {
   manifest {
     attributes(
-        "Implementation-Title"      : project.name,
-        "Implementation-Version"    : productVersion
-        )
+    "Implementation-Title"      : project.name,
+    "Implementation-Version"    : productVersion
+    )
   }
 }
 
@@ -34,9 +34,9 @@ task sourcesJar(type: Jar, dependsOn: classes) {
   from sourceSets.main.allSource
   manifest {
     attributes(
-        "Implementation-Title"      : project.name,
-        "Implementation-Version"    : productVersion
-        )
+    "Implementation-Title"      : project.name,
+    "Implementation-Version"    : productVersion
+    )
   }
 }
 artifacts { archives sourcesJar }
@@ -71,12 +71,33 @@ sourceSets {
 // call environmentConfig task
 processResources.dependsOn rootProject.environmentConfig
 
+// add depending projects' test sourceSets to test classpath
+compileTestJava {
+  doFirst {
+    project.getDependingProjects().each { dependingProject ->
+      project.sourceSets {
+        test.compileClasspath += dependingProject.sourceSets.test.output
+        test.runtimeClasspath += dependingProject.sourceSets.test.output
+
+        test.compileClasspath += dependingProject.sourceSets.test.compileClasspath
+        test.runtimeClasspath += dependingProject.sourceSets.test.runtimeClasspath
+      }
+    }
+  }
+}
+
 // copy environment config files for test
 processTestResources {
   doLast {
-    copy {
-      from("${rootProject.buildDir}/${envRootName}/${env}")
-      into destinationDir
+    project.getDependingAllProjects().each { project ->
+      copy {
+        from("${rootProject.buildDir}/${envRootName}/${defaultDir}/${project.name}")
+        into destinationDir
+      }
+      copy {
+        from("${rootProject.buildDir}/${envRootName}/${env}/${project.name}")
+        into destinationDir
+      }
     }
   }
 }
