@@ -14,6 +14,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.ServletModule;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import equus.webstack.application.module.ApplicationModule;
 import equus.webstack.converter.json.CustomObjectMapper;
 
@@ -31,6 +32,7 @@ public class WebStackApplication extends ResourceConfig {
   }
 
   @Inject
+  @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
   public WebStackApplication(ServiceLocator serviceLocator) {
     packages("equus.webstack.resource");
     property("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", false);
