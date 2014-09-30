@@ -1,12 +1,12 @@
 apply from: 'build-base.gradle'
 
-apply from: 'gradle/java.gradle'
-apply from: 'gradle/eclipse.gradle'
-apply from: 'gradle/checkstyle.gradle'
-apply from: 'gradle/findbugs.gradle'
-apply from: 'gradle/eclipse-wtp.gradle'
-apply from: 'gradle/web.gradle'
-apply from: 'gradle/application.gradle'
+apply from: "${scriptPath}/java.gradle"
+apply from: "${scriptPath}/eclipse.gradle"
+apply from: "${scriptPath}/checkstyle.gradle"
+apply from: "${scriptPath}/findbugs.gradle"
+apply from: "${scriptPath}/eclipse-wtp.gradle"
+apply from: "${scriptPath}/web.gradle"
+apply from: "${scriptPath}/application.gradle"
 
 dependencies {
   compile libraries.guice

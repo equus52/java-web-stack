@@ -19,6 +19,7 @@ ext {
   productVersion = '0.0.1-SNAPSHOT'
   configurationDir = new File(buildscript.sourceFile.parentFile, 'configuration')
   mainConfigPath = 'src/main/config'
+  scriptPath = "${rootProject.projectDir.getAbsolutePath()}/gradle"
 
   // Java
   jdkVersion = '1.8'
