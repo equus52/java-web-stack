@@ -18,6 +18,10 @@ sourceSets.test.resources.srcDirs 'src/test/java'
 // config dirctory as resources directory settings
 sourceSets.test.resources.srcDirs mainConfigPath
 
+test {
+  forkEvery = 1
+}
+
 // jar settings
 jar {
   manifest {
