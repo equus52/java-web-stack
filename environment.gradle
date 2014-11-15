@@ -16,7 +16,7 @@ allprojects {
       project.dependencies { compile dependingProject }
       project.ext.dependingProjects.add dependingProject
     }
-    
+
     getDependingProjects = {
       def set = new LinkedHashSet();
       project.ext.dependingProjects.each { dependingProject ->
@@ -24,14 +24,14 @@ allprojects {
       }
       return set
     }
-    
+
     getDependingAllProjects = {
       def set = new LinkedHashSet();
       set.addAll(project.getDependingProjects())
       set.add(project)
       return set
     }
-    
+
     // find effective environment list
     // if nothing, return "default"
     findEffectiveEnvList = {
@@ -48,7 +48,7 @@ allprojects {
           set.add(envName)
         }
       }
-      if (set.size() == 0) {
+      if (set.size() < envList.size()) {
         set.add(defaultDir)
       }
       return set
@@ -57,14 +57,14 @@ allprojects {
 }
 
 file(envRootName).listFiles().each { file ->
-  def envName = file.name
-  if (envName == defaultDir) {
-    return
-  }
-  if (envName.startsWith('.')) {
-    return
-  }
-  envList +=[envName]
+def envName = file.name
+if (envName == defaultDir) {
+  return
+}
+if (envName.startsWith('.')) {
+  return
+}
+envList +=[envName]
 }
 def confFileName = 'configuration.properties'
 
@@ -75,45 +75,55 @@ excludeFiles += ['**/*.groovy']
 // environment config task
 task environmentConfig() << {
 
-  // copy each projects' configuration to build/environment/default
   subprojects.each { project ->
     copy {
       from("${project.projectDir.getAbsolutePath()}/${mainConfigPath}")
       into("${buildDir}/${envRootName}/${defaultDir}/${project.name}")
     }
   }
+  copy {
+    from("${envRootName}/${defaultDir}")
+    into("${buildDir}/${envRootName}/${defaultDir}")
+  }
 
   envList.each { envName ->
-    def tmpDir = "${buildDir}/tmp/${envRootName}"
-    // copy default directry to tmp directry
-    copy {
-      from("${envRootName}/${defaultDir}")
-      into("${tmpDir}/${envName}")
-    }
-    // overwrite env directry to tmp directry
-    copy {
-      from("${envRootName}/${envName}")
-      into("${tmpDir}/${envName}")
-    }
-    // overwrite tmp directory to build/environment/}
-    copy {
-      from("${tmpDir}/${envName}")
-      into("${buildDir}/${envRootName}/${envName}")
-      exclude confFileName
-    }
 
-    // replace and overwrite
-    def confFile = new File("${tmpDir}/${envName}/${confFileName}")
-    if (confFile.isFile()) {
-      def props = new Properties()
-      confFile.withInputStream { stream ->
-        props.load(stream)
+    def tmpDir = "${buildDir}/tmp/${envRootName}"
+
+    subprojects.each { project ->
+      def envProjectDir = new File("${envRootName}/${envName}/${project.name}")
+      if (!envProjectDir.isDirectory()) {
+        return
+      }
+      def tmpEnvProjectDir = new File("${tmpDir}/${envName}/${project.name}")
+      copy {
+        from("${envRootName}/${defaultDir}/${project.name}")
+        into(tmpEnvProjectDir)
       }
       copy {
-        from("${tmpDir}/${envName}") { exclude confFileName }
-        into("${buildDir}/${envRootName}/${envName}")
-        exclude excludeFiles
-        expand(props)
+        from(envProjectDir)
+        into(tmpEnvProjectDir)
+      }
+
+      def buildEnvProjectDir = new File("${buildDir}/${envRootName}/${envName}/${project.name}")
+      copy {
+        from(tmpEnvProjectDir)
+        into(buildEnvProjectDir)
+        exclude confFileName
+      }
+
+      def confFile = new File("${tmpDir}/${envName}/${project.name}/${confFileName}")
+      if (confFile.isFile()) {
+        def props = new Properties()
+        confFile.withInputStream { stream ->
+          props.load(stream)
+        }
+        copy {
+          from(tmpEnvProjectDir)
+          into(buildEnvProjectDir)
+          exclude excludeFiles
+          expand(props)
+        }
       }
     }
   }
