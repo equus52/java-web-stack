@@ -10,6 +10,9 @@ import javax.persistence.ManyToMany;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -21,5 +24,6 @@ public class Student extends BaseEntity {
 
   @Column(nullable = true)
   @ManyToMany(fetch = FetchType.EAGER)
+  @Fetch(FetchMode.SUBSELECT)
   private Set<Course> courseList;
 }

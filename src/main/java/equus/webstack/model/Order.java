@@ -13,6 +13,9 @@ import javax.persistence.OneToMany;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 @Entity(name = "order_list")
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -25,5 +28,6 @@ public class Order extends BaseEntity {
   @Column(nullable = true)
   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JoinColumn(name = "order_id")
+  @Fetch(FetchMode.SUBSELECT)
   private Set<OrderItem> orderItemList;
 }
