@@ -19,4 +19,9 @@ appender("CONSOLE", ConsoleAppender) {
     pattern = "${patternStr}"
   }
 }
-root(INFO, ["CONSOLE", "FILE"])
+
+logger("org.hibernate", INFO)
+logger("org.hibernate.SQL", DEBUG)
+logger("org.eclipse.jetty", INFO)
+
+root(DEBUG, ["CONSOLE", "FILE"])
