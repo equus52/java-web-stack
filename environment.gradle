@@ -10,21 +10,14 @@ ext {
 
 allprojects {
   ext {
-    dependingProjects = new LinkedHashSet()
-
-    dependsOn = {Project dependingProject ->
-      project.dependencies { compile dependingProject }
-      project.ext.dependingProjects.add dependingProject
-    }
-
     getDependingProjects = {
       def set = new LinkedHashSet();
-      project.ext.dependingProjects.each { dependingProject ->
-        set.addAll(dependingProject.getDependingAllProjects())
+      project.configurations.compile.dependencies.withType(ProjectDependency).each {
+        set.addAll(it.dependencyProject.getDependingAllProjects())
       }
       return set
     }
-
+    
     getDependingAllProjects = {
       def set = new LinkedHashSet();
       set.addAll(project.getDependingProjects())
