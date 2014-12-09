@@ -9,6 +9,8 @@ apply from: "${scriptPath}/web.gradle"
 apply from: "${scriptPath}/application.gradle"
 
 dependencies {
+  compile libraries.pattern_matching4j
+  
   compile libraries.guice
   compile libraries.guice_servlet
   compile libraries.guice_persist
